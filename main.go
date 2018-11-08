@@ -25,7 +25,7 @@ var (
 
 func init() {
 	flag.Usage = func() {
-		fmt.Println("Usage: prom-telemetry-gw [ ... ]\n\nParameters:")
+		fmt.Println("Usage: openconfig-streaming-telemetry-exporter [ ... ]\n\nParameters:")
 		fmt.Println()
 		flag.PrintDefaults()
 	}
