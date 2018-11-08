@@ -1,8 +1,10 @@
-# prom-telemetry-gw
+# openconfig-streaming-telemetry-exporter
 
 Prometheus Telemetry Gateways is a Prometheus exporter that collects metrics from network devices using streaming telemetry.
 
-Currently tested with JunOS 17.3
+Currently tested with JunOS 17.3. 
+
+**PRs for other system welcome!**
 
 ## Example configuration on JunOS
 https://forums.juniper.net/t5/Automation/OpenConfig-and-gRPC-Junos-Telemetry-Interface/ta-p/316090
