@@ -6,9 +6,6 @@ Currently tested with JunOS 17.3.
 
 **PRs for other system welcome!**
 
-## Example configuration on JunOS
-https://forums.juniper.net/t5/Automation/OpenConfig-and-gRPC-Junos-Telemetry-Interface/ta-p/316090
-
 ## Install
 ```go get github.com/exaring/openconfig-streaming-telemetry-exporter```
 
@@ -32,3 +29,12 @@ As some metrics are returned as Strings we need to map those to an int for Prome
 `  /interfaces/interface/state/oper-status:` - Path to do mappings for  
 `    DOWN: 0` - string(DOWN) mapped to int(0)  
 `    UP: 1` - string(UP) mapped to int(1)  
+
+## JunOS examples
+
+### Configuration
+https://forums.juniper.net/t5/Automation/OpenConfig-and-gRPC-Junos-Telemetry-Interface/ta-p/316090
+
+### Available openconfig paths
+https://www.juniper.net/documentation/en_US/junos/topics/reference/general/junos-telemetry-interface-grpc-sensors.html
+https://www.juniper.net/documentation/en_US/junos/information-products/pathway-pages/open-config/open-config-feature-guide.pdf
