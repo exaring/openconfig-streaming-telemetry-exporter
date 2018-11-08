@@ -1,7 +1,7 @@
 listen_address: 0.0.0.0:9513
 metrics_path: /metrics
 targets:
-- hostname: 169.254.0.0
+- hostname: 203.0.113.1
   port: 50051
   paths:
   - path: /interfaces/
