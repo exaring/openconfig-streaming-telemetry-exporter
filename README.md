@@ -2,17 +2,20 @@
 
 Prometheus Telemetry Gateways is a Prometheus exporter that collects metrics from network devices using streaming telemetry.
 
-Currently tested with JunOS 17.3. 
+Currently tested with JunOS 17.3.
 
 **PRs for other system welcome!**
 
 ## Install
+
 ```go get github.com/exaring/openconfig-streaming-telemetry-exporter```
 
 ## Run
+
 ```openconfig-streaming-telemetry-exporter -config.file /path/to/config.yml```
 
 ## Configuration
+
 `listen_address: 0.0.0.0:9513` - The address to listen for Prometheus scrapers  
 `metrics_path: /metrics` - Path on which Prometheus metrics are exposed  
 `targets:` - Targets block, you can define multiple targets here  
@@ -32,9 +35,11 @@ As some metrics are returned as Strings we need to map those to an int for Prome
 
 ## JunOS examples
 
-### Configuration
+### Device Configuration
+
 https://forums.juniper.net/t5/Automation/OpenConfig-and-gRPC-Junos-Telemetry-Interface/ta-p/316090
 
 ### Available openconfig paths
+
 https://www.juniper.net/documentation/en_US/junos/topics/reference/general/junos-telemetry-interface-grpc-sensors.html
 https://www.juniper.net/documentation/en_US/junos/information-products/pathway-pages/open-config/open-config-feature-guide.pdf
