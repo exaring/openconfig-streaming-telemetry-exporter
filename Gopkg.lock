@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/StackExchange/wmi"
+  packages = ["."]
+  revision = "5d049714c4a64225c3c79a7cf7d02f7fb5b96338"
+  version = "1.0.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/alecthomas/template"
   packages = [
@@ -27,6 +33,21 @@
   packages = ["spew"]
   revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
   version = "v1.1.1"
+
+[[projects]]
+  name = "github.com/go-ole/go-ole"
+  packages = [
+    ".",
+    "oleutil"
+  ]
+  revision = "a41e3c4b706f6ae8dfbff342b06e40fa4d2d0506"
+  version = "v1.2.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/golang/glog"
+  packages = ["."]
+  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -97,6 +118,27 @@
   revision = "185b4288413d2a0dd0806f78c90dde719829e5ae"
 
 [[projects]]
+  name = "github.com/q3k/goveralls"
+  packages = ["."]
+  revision = "789b29cb81d4de953738cec0fbaefa8af2ff4ea2"
+  version = "v0.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/q3k/statusz"
+  packages = ["."]
+  revision = "924f04ea71149b75f5b10f426cc4c39d6d90f6f2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/shirou/gopsutil"
+  packages = [
+    "internal/common",
+    "load"
+  ]
+  revision = "48177ef5f8809fc72b716c414435f2d4cff8e24d"
+
+[[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   revision = "bcd833dfe83d3cebad139e4a29ed79cb2318bf95"
@@ -162,6 +204,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/tools"
+  packages = ["cover"]
+  revision = "a28dfb48e06b2296b66678872c2cb638f0304f20"
+
+[[projects]]
+  branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   revision = "5fc9ac5403620be16bcdb0c8e7644b1178472c3b"
@@ -215,6 +263,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f623de4f76ee30fc9c70d96ac042b30206f6b8c91cb616d8161035c27f3191fa"
+  inputs-digest = "b5d101874059f0583e5461258ea3fc3fafbea12bd9df6e513f207acf2edf5aa6"
   solver-name = "gps-cdcl"
   solver-version = 1
