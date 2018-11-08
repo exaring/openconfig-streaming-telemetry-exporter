@@ -1,0 +1,27 @@
+dist: trusty
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - wget
+      - pkg-config
+      - zip
+      - g++
+      - zlib1g-dev
+      - unzip
+      - python
+
+language: go
+
+go:
+  - 1.11.1
+
+script:
+- mkdir -p $HOME/gopath/src/github.com/exaring/
+- ln -s $TRAVIS_BUILD_DIR $HOME/gopath/src/github.com/exaring/openconfig-streaming-telemetry-exporter || true
+- cd $HOME/gopath/src/github.com/exaring/openconfig-streaming-telemetry-exporter
+- go test -v -cover -coverprofile=coverage.out ./...
+- go install github.com/exaring/openconfig-streaming-telemetry-exporter/vendor/github.com/q3k/goveralls/
+- $HOME/gopath/bin/goveralls -coverprofile=coverage.out -merge=false

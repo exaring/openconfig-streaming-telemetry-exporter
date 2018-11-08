@@ -13,6 +13,7 @@ import (
 	"github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/config"
 	"github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/frontend"
 
+	_ "github.com/q3k/statusz"
 	log "github.com/sirupsen/logrus"
 )
 
