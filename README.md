@@ -1,10 +1,10 @@
 # openconfig-streaming-telemetry-exporter
 
-Prometheus Telemetry Gateways is a Prometheus exporter that collects metrics from network devices using streaming telemetry.
+openconfig-streaming-telemetry-exporter is a Prometheus exporter that collects metrics from network devices using streaming telemetry.
 
-Currently tested with JunOS 17.3.
+Tested with JunOS 17.3.
 
-**PRs for other system welcome!**
+**PRs for other systems welcome!**
 
 ## Install
 
