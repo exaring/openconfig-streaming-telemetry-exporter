@@ -16,22 +16,36 @@ Currently tested with JunOS 17.3.
 
 ## Configuration
 
-`listen_address: 0.0.0.0:9513` - The address to listen for Prometheus scrapers  
-`metrics_path: /metrics` - Path on which Prometheus metrics are exposed  
-`targets:` - Targets block, you can define multiple targets here  
-`- hostname: 203.0.113.1` - Hostname of the openconfig target  
-`  port: 50051` - Port of the openconfig target  
-`  paths:` - Openconfig paths to subscribe to  
-`  - path: /interfaces/` - Network interfaces metrics path  
-`    suppress_unchanged: false` - Surpress updates for not changed metrics  
-`    max_silent_interval_ms: 20000` - Maximum time between updates  
-`    sample_frequency_ms: 2000` - Sample frequency  
-
-As some metrics are returned as Strings we need to map those to an int for Prometheus.  
-`string_value_mapping:` - Mapping of different String states to int values for Prometheus  
-`  /interfaces/interface/state/oper-status:` - Path to do mappings for  
-`    DOWN: 0` - string(DOWN) mapped to int(0)  
-`    UP: 1` - string(UP) mapped to int(1)  
+```
+# The address to listen for Prometheus scrapers
+listen_address: 0.0.0.0:9513
+# Prometheus metrics path
+metrics_path: /metrics
+# Targets block, you can define multiple targets here 
+targets:
+# Hostname of the openconfig target
+- hostname: 203.0.113.1
+  # Port of the openconfig target
+  port: 50051
+  # Openconfig paths to subscribe to
+  paths:
+    # Network interfaces metrics path
+  - path: /interfaces/
+    # Surpress updates for not changed metrics 
+    suppress_unchanged: false
+    # Maximum time between updates 
+    max_silent_interval_ms: 20000
+    # Sample frequency 
+    sample_frequency_ms: 2000
+# As some metrics are returned as Strings we need to map those to an int for Prometheus
+string_value_mapping:
+  # Path to do mappings for
+  /interfaces/interface/state/oper-status:
+    string(DOWN) mapped to int(0)
+    DOWN: 0
+    string(UP) mapped to int(1)
+    UP: 1
+```
 
 ## JunOS examples
 
