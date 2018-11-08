@@ -16,10 +16,10 @@ https://forums.juniper.net/t5/Automation/OpenConfig-and-gRPC-Junos-Telemetry-Int
 ```openconfig-streaming-telemetry-exporter -config.file /path/to/config.yml```
 
 ## Configuration
-`listen_address: :8080` - The address to listen for Prometheus scrapers  
+`listen_address: 0.0.0.0:9513` - The address to listen for Prometheus scrapers  
 `metrics_path: /metrics` - Path on which Prometheus metrics are exposed  
 `targets:` - Targets block, you can define multiple targets here  
-`- hostname: 169.254.0.0` - Hostname of the openconfig target  
+`- hostname: 203.0.113.1` - Hostname of the openconfig target  
 `  port: 50051` - Port of the openconfig target  
 `  paths:` - Openconfig paths to subscribe to  
 `  - path: /interfaces/` - Network interfaces metrics path  

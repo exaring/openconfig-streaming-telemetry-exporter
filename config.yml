@@ -1,4 +1,4 @@
-listen_address: :8080
+listen_address: 0.0.0.0:9513
 metrics_path: /metrics
 targets:
 - hostname: 169.254.0.0
