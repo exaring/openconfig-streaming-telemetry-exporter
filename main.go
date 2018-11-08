@@ -79,5 +79,5 @@ func printVersion() {
 	fmt.Println("openconfig_streaming_telemetry_exporter")
 	fmt.Printf("Version: %s\n", version)
 	fmt.Println("Author(s): Annika Wickert, Oliver Herms")
-	fmt.Println("Metric exporter for switches and routers exporting via opencofnig streaming telemetry")
+	fmt.Println("Metric exporter for switches and routers via openconfig streaming telemetry")
 }
