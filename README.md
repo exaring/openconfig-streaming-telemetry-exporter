@@ -16,12 +16,12 @@ Tested with JunOS 17.3.
 
 ## Configuration
 
-```
+```yaml
 # The address to listen for Prometheus scrapers
 listen_address: 0.0.0.0:9513
 # Prometheus metrics path
 metrics_path: /metrics
-# Targets block, you can define multiple targets here 
+# Targets block, you can define multiple targets here
 targets:
 # Hostname of the openconfig target
 - hostname: 203.0.113.1
@@ -33,9 +33,9 @@ targets:
   - path: /interfaces/
     # Suppress updates for not changed metrics
     suppress_unchanged: false
-    # Maximum time between updates 
+    # Maximum time between updates
     max_silent_interval_ms: 20000
-    # Sample frequency 
+    # Sample frequency
     sample_frequency_ms: 2000
 # As some metrics are returned as strings we need to map those to an int for Prometheus
 string_value_mapping:
@@ -51,9 +51,9 @@ string_value_mapping:
 
 ### Device Configuration
 
-https://forums.juniper.net/t5/Automation/OpenConfig-and-gRPC-Junos-Telemetry-Interface/ta-p/316090
+<https://forums.juniper.net/t5/Automation/OpenConfig-and-gRPC-Junos-Telemetry-Interface/ta-p/316090>
 
 ### Available openconfig paths
 
-https://www.juniper.net/documentation/en_US/junos/topics/reference/general/junos-telemetry-interface-grpc-sensors.html
-https://www.juniper.net/documentation/en_US/junos/information-products/pathway-pages/open-config/open-config-feature-guide.pdf
+<https://www.juniper.net/documentation/en_US/junos/topics/reference/general/junos-telemetry-interface-grpc-sensors.html>  
+<https://www.juniper.net/documentation/en_US/junos/information-products/pathway-pages/open-config/open-config-feature-guide.pdf>
