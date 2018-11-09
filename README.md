@@ -37,13 +37,13 @@ targets:
     max_silent_interval_ms: 20000
     # Sample frequency 
     sample_frequency_ms: 2000
-# As some metrics are returned as Strings we need to map those to an int for Prometheus
+# As some metrics are returned as strings we need to map those to an int for Prometheus
 string_value_mapping:
   # Path to do mappings for
   /interfaces/interface/state/oper-status:
-    string(DOWN) mapped to int(0)
+    # string(DOWN) mapped to int(0)
     DOWN: 0
-    string(UP) mapped to int(1)
+    # string(UP) mapped to int(1)
     UP: 1
 ```
 
