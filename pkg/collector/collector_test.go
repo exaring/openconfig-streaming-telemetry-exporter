@@ -288,7 +288,7 @@ func TestIntegration(t *testing.T) {
 					},
 				},
 			},
-			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{foo=\"bar\",name=\"xe-0/0/1\"} 100\ninterfaces_interface_state_oper_state{bar=\"foo\",name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{foo=\"bar\",name=\"xe-0/0/1\"} 1337\ninterfaces_interface_state_pkts{bar=\"foo\",name=\"xe-0/0/0\"} 1337\n",
+			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{bar=\"foo\",name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{bar=\"foo\",name=\"xe-0/0/0\"} 1337\n# HELP interfaces_interface_subinterfaces_subinterface_state_pkts interfaces/interface/subinterfaces/subinterface/state/pkts\n# TYPE interfaces_interface_subinterfaces_subinterface_state_pkts gauge\ninterfaces_interface_subinterfaces_subinterface_state_pkts{index=\"123\",name=\"xe-0/0/0\",some=\"label\"} 232323\n"
 		},
 	}
 
