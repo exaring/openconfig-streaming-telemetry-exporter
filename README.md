@@ -31,7 +31,7 @@ targets:
   paths:
     # Network interfaces metrics path
   - path: /interfaces/
-    # Surpress updates for not changed metrics 
+    # Suppress updates for not changed metrics
     suppress_unchanged: false
     # Maximum time between updates 
     max_silent_interval_ms: 20000
