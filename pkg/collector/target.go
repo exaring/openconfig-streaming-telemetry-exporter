@@ -127,7 +127,8 @@ func (t *Target) processOpenConfigData(data *pb.OpenConfigData) {
 func (t *Target) collect(ch chan<- prometheus.Metric, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	for _, m := range t.metrics.getMetrics() {
+	res := t.metrics.getMetrics()
+	for _, m := range res {
 		valueType := prometheus.GaugeValue
 		if strings.Contains(m.name, "counters") {
 			valueType = prometheus.CounterValue

@@ -9,7 +9,19 @@ import (
 )
 
 var (
-	descLabelRegexp = regexp.MustCompile("([a-zA-Z_][a-zA-Z0-9_]*)")
+	descLabelRegexp    = regexp.MustCompile("([a-zA-Z_][a-zA-Z0-9_]*)")
+	metricNameReplacer = strings.NewReplacer(
+		"/", "_",
+		"-", "_",
+		"'", "",
+	)
+	labelValueReplacer = strings.NewReplacer(
+		"'", "",
+	)
+	labelKeyReplacer = strings.NewReplacer(
+		"-", "_",
+		"'", "",
+	)
 )
 
 type tree struct {
@@ -82,7 +94,10 @@ func (t *tree) getMetrics() []metric {
 		return nil
 	}
 
-	return t.root.getMetrics()
+	res := newMetricSet()
+	t.root.getMetrics("", res, []label{}, []label{})
+
+	return res.get()
 }
 
 func (n *node) dump(level int) []string {
@@ -134,8 +149,30 @@ func (n *node) descLabels() []string {
 	return parts
 }
 
-func (n *node) getMetrics() []metric {
-	res := make([]metric, 0, 100)
+func (n *node) getMetrics(path string, res *metricSet, labels []label, descriptionLabels []label) {
+	if path == "" {
+		path = n.id.name
+	} else {
+		path = path + "/" + n.id.name
+	}
+
+	if n.id.labels != "" {
+		newLabels := labelStringToLabels(n.id.labels)
+		mergedLabels := make([]label, len(labels)+len(newLabels))
+		for i, label := range labels {
+			mergedLabels[i] = label
+		}
+
+		for i, label := range newLabels {
+			mergedLabels[len(labels)+i] = label
+		}
+
+		labels = mergedLabels
+	}
+
+	if n.description != "" {
+		descriptionLabels = labelStringToLabels(n.description)
+	}
 
 	keys := make([]identifier, len(n.children))
 	i := 0
@@ -148,40 +185,19 @@ func (n *node) getMetrics() []metric {
 		return keys[i].name < keys[j].name
 	})
 
-	for _, key := range keys {
-		for _, m := range n.children[key].getMetrics() {
-			if n.id.name != "" {
-				m.name = n.id.name + "/" + m.name
-			}
-
-			if n.id.labels != "" {
-				m.labels = append(m.labels, strings.Split(n.id.labels, ",")...)
-			}
-
-			if n.description != "" {
-				if m.descriptionLabels == nil {
-					m.descriptionLabels = n.descLabels()
-				}
-			}
-
-			res = append(res, m)
-		}
-	}
-
 	if n.real {
 		m := metric{
-			name:  n.id.name,
-			value: n.value,
+			name:   path,
+			value:  n.value,
+			labels: append(labels, descriptionLabels...),
 		}
 
-		if n.id.labels != "" {
-			m.labels = strings.Split(n.id.labels, ",")
-		}
-
-		res = append(res, m)
+		res.append(m)
 	}
 
-	return res
+	for _, key := range keys {
+		n.children[key].getMetrics(path, res, labels, descriptionLabels)
+	}
 }
 
 func (n *node) insert(path []identifier, v interface{}) {
@@ -198,6 +214,27 @@ func (n *node) insert(path []identifier, v interface{}) {
 	n.value = v
 }
 
+func labelStringToLabels(input string) []label {
+	res := make([]label, 0, 10)
+	for _, labelStr := range strings.Split(input, ",") {
+		kv := strings.Split(labelStr, "=")
+		if len(kv) != 2 {
+			continue
+		}
+
+		if !descLabelRegexp.Match([]byte(kv[0])) {
+			continue
+		}
+
+		res = append(res, label{
+			key:   labelKeyReplacer.Replace(kv[0]),
+			value: labelValueReplacer.Replace(kv[1]),
+		})
+	}
+
+	return res
+}
+
 func pathToIdentifiers(p string) []identifier {
 	tokens := tokenizePath(p)
 	ids := make([]identifier, len(tokens))
@@ -209,25 +246,38 @@ func pathToIdentifiers(p string) []identifier {
 	return ids
 }
 
-func dropSlashPrefixSuffix(p string) string {
+func dropSlashPrefixSuffix(p string) []rune {
+	start := 0
+	end := len(p)
+
 	if strings.HasPrefix(p, "/") {
-		p = string([]rune(p)[1:])
+		start = 1
 	}
 
 	if strings.HasSuffix(p, "/") {
-		p = string([]rune(p)[:len(p)-1])
+		end = len(p) - 1
 	}
 
-	return p
+	return []rune(p)[start:end]
+}
+
+func slashCount(runes []rune) int {
+	count := 0
+	for _, r := range runes {
+		if r == '/' {
+			count++
+		}
+	}
+
+	return count
 }
 
 func tokenizePath(p string) []string {
-	p = dropSlashPrefixSuffix(p)
-	runes := []rune(p)
-	res := make([]string, 0, 10)
+	runes := dropSlashPrefixSuffix(p)
+	res := make([]string, 0, slashCount(runes))
 
 	bracesLevel := 0
-	tmp := make([]rune, 0, 15)
+	tmp := make([]rune, 0, 25)
 	for i := 0; i < len(runes); i++ {
 		if runes[i] == '[' {
 			bracesLevel++

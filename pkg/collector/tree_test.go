@@ -28,8 +28,9 @@ func TestGetMetrics(t *testing.T) {
 			},
 			expected: []metric{
 				{
-					name:  "interfaces",
-					value: float64(100),
+					name:   "interfaces",
+					value:  float64(100),
+					labels: []label{},
 				},
 			},
 		},
@@ -48,9 +49,15 @@ func TestGetMetrics(t *testing.T) {
 				{
 					name:  "interfaces/bgp/something",
 					value: float64(200),
-					labels: []string{
-						"some='label'",
-						"foo='bar'",
+					labels: []label{
+						{
+							key:   "foo",
+							value: "bar",
+						},
+						{
+							key:   "some",
+							value: "label",
+						},
 					},
 				},
 			},
@@ -74,17 +81,29 @@ func TestGetMetrics(t *testing.T) {
 				{
 					name:  "interfaces/bgp/something",
 					value: float64(200),
-					labels: []string{
-						"some='label'",
-						"foo='bar'",
+					labels: []label{
+						{
+							key:   "foo",
+							value: "bar",
+						},
+						{
+							key:   "some",
+							value: "label",
+						},
 					},
 				},
 				{
 					name:  "interfaces/bgp/something",
 					value: float64(300),
-					labels: []string{
-						"some='crap'",
-						"foo='bar'",
+					labels: []label{
+						{
+							key:   "foo",
+							value: "bar",
+						},
+						{
+							key:   "some",
+							value: "crap",
+						},
 					},
 				},
 			},
