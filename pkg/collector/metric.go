@@ -6,6 +6,21 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+var (
+	metricNameReplacer = strings.NewReplacer(
+		"/", "_",
+		"-", "_",
+		"'", "",
+	)
+	labelValueReplacer = strings.NewReplacer(
+		"'", "",
+	)
+	labelKeyReplacer = strings.NewReplacer(
+		"-", "_",
+		"'", "",
+	)
+)
+
 type metric struct {
 	name              string
 	labels            []string
@@ -19,12 +34,7 @@ type label struct {
 }
 
 func (m *metric) promName() string {
-	r := strings.NewReplacer(
-		"/", "_",
-		"-", "_",
-		"'", "",
-	)
-	return r.Replace(m.name)
+	return metricNameReplacer.Replace(m.name)
 }
 
 func (m *metric) Key() string {
@@ -44,12 +54,9 @@ func (m *metric) describe() *prometheus.Desc {
 func (m *metric) promLabelValues() []string {
 	values := m.labelValues()
 	res := make([]string, len(values))
-	r := strings.NewReplacer(
-		"'", "",
-	)
 
 	for i, v := range values {
-		res[i] = r.Replace(v)
+		res[i] = labelValueReplacer.Replace(v)
 	}
 
 	return res
@@ -85,17 +92,9 @@ func (m *metric) labelValues() []string {
 func (m *metric) promLabelKeys() []string {
 	keys := m.labelKeys()
 	res := make([]string, len(keys))
-	r := strings.NewReplacer(
-		"-", "_",
-		"'", "",
-	)
 
 	for i, k := range keys {
-		//fmt.Printf("k: %s = %s\n", k, keys[i])
-		res[i] = r.Replace(k)
-		/*if res[i] == "" {
-			panic(fmt.Sprintf("Empty key for %q => %v", m.name, m.labels))
-		}*/
+		res[i] = labelKeyReplacer.Replace(k)
 	}
 
 	return res
