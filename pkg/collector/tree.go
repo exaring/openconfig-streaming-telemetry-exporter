@@ -151,7 +151,6 @@ func (n *node) getMetrics() []metric {
 			}
 
 			if n.description != "" {
-				fmt.Printf("This node has a description: %q\n", n.description)
 				if m.descriptionLabels == nil && n.description != "" {
 					m.descriptionLabels = n.descLabels()
 
