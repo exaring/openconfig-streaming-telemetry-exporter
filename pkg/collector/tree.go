@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	descLabelRegexp = regexp.MustCompile("([a-zA-Z_][a-zA-Z0-9_]*=.+)")
+	descLabelRegexp = regexp.MustCompile("([a-zA-Z_][a-zA-Z0-9_]*)")
 )
 
 type tree struct {
@@ -121,7 +121,12 @@ func (n *node) setDescription(path []identifier, v string) {
 func (n *node) descLabels() []string {
 	parts := strings.Split(n.description, ",")
 	for _, p := range parts {
-		if !descLabelRegexp.Match([]byte(p)) {
+		keyValue := strings.Split(p, "=")
+		if len(keyValue) != 2 {
+			return []string{}
+		}
+
+		if !descLabelRegexp.Match([]byte(keyValue[0])) {
 			return []string{}
 		}
 	}
@@ -130,7 +135,7 @@ func (n *node) descLabels() []string {
 }
 
 func (n *node) getMetrics() []metric {
-	res := make([]metric, 0)
+	res := make([]metric, 0, 100)
 
 	keys := make([]identifier, len(n.children))
 	i := 0
