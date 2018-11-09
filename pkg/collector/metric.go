@@ -91,7 +91,11 @@ func (m *metric) promLabelKeys() []string {
 	)
 
 	for i, k := range keys {
+		//fmt.Printf("k: %s = %s\n", k, keys[i])
 		res[i] = r.Replace(k)
+		/*if res[i] == "" {
+			panic(fmt.Sprintf("Empty key for %q => %v", m.name, m.labels))
+		}*/
 	}
 
 	return res
