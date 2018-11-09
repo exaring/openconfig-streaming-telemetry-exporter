@@ -34,6 +34,17 @@ func (c *Collector) Stop() {
 	}
 }
 
+func (c *Collector) Dump() []string {
+	c.targetsMu.RLock()
+	defer c.targetsMu.RUnlock()
+
+	for _, t := range c.targets {
+		return t.dump()
+	}
+
+	return nil
+}
+
 // AddTarget adds a target to the collector
 func (c *Collector) AddTarget(tconf *config.Target, stringValueMapping map[string]map[string]int) *Target {
 	c.targetsMu.Lock()

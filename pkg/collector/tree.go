@@ -1,12 +1,11 @@
 package collector
 
 import (
+	"fmt"
 	"regexp"
 	"sort"
 	"strings"
 	"sync"
-
-	pb "github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/telemetry"
 )
 
 var (
@@ -22,7 +21,7 @@ type node struct {
 	id          identifier
 	real        bool
 	value       interface{}
-	description interface{}
+	description string
 	children    map[identifier]*node
 }
 
@@ -42,7 +41,18 @@ func newNode(id identifier) *node {
 	}
 }
 
-func (t *tree) setDescription(path string, v interface{}) {
+func (t *tree) dump() []string {
+	t.lock.RLock()
+	defer t.lock.RUnlock()
+
+	if t.root == nil {
+		return nil
+	}
+
+	return t.root.dump(0)
+}
+
+func (t *tree) setDescription(path string, v string) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
@@ -75,7 +85,27 @@ func (t *tree) getMetrics() []metric {
 	return t.root.getMetrics()
 }
 
-func (n *node) setDescription(path []identifier, v interface{}) {
+func (n *node) dump(level int) []string {
+	ret := make([]string, 0)
+
+	ret = append(ret, "|\n")
+	ret = append(ret, fmt.Sprintf("%s[%s](%v) = %v\n", n.id.name, n.id.labels, n.description, n.value))
+
+	for _, c := range n.children {
+		ret = append(ret, c.dump(level+1)...)
+	}
+
+	for i := range ret {
+		for j := 0; j < level; j++ {
+			ret[i] = " " + ret[i]
+		}
+		ret[i] = "|" + ret[i]
+	}
+
+	return ret
+}
+
+func (n *node) setDescription(path []identifier, v string) {
 	if len(path) > 0 {
 		if _, ok := n.children[path[0]]; !ok {
 			n.children[path[0]] = newNode(path[0])
@@ -89,11 +119,8 @@ func (n *node) setDescription(path []identifier, v interface{}) {
 }
 
 func (n *node) descLabels() []string {
-	switch v := n.description.(type) {
-	case *pb.KeyValue_StrValue:
-		if descLabelRegexp.Match([]byte(v.StrValue)) {
-			return strings.Split(v.StrValue, ",")
-		}
+	if descLabelRegexp.Match([]byte(n.description)) {
+		return strings.Split(n.description, ",")
 	}
 
 	return []string{}
@@ -124,7 +151,11 @@ func (n *node) getMetrics() []metric {
 			}
 
 			if n.description != "" {
-				m.labels = append(m.labels, n.descLabels()...)
+				fmt.Printf("This node has a description: %q\n", n.description)
+				if m.descriptionLabels == nil && n.description != "" {
+					m.descriptionLabels = n.descLabels()
+
+				}
 			}
 
 			res = append(res, m)

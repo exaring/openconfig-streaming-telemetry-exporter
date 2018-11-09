@@ -40,6 +40,10 @@ func (t *Target) stop() {
 	t.stopCh <- struct{}{}
 }
 
+func (t *Target) dump() []string {
+	return t.metrics.dump()
+}
+
 func (t *Target) subscriptionRequest() *pb.SubscriptionRequest {
 	subReq := &pb.SubscriptionRequest{
 		AdditionalConfig: &pb.SubscriptionAdditionalConfig{
@@ -110,7 +114,10 @@ func (t *Target) processOpenConfigData(data *pb.OpenConfigData) {
 		}
 
 		if strings.HasSuffix(kv.Key, "state/description") {
-			t.metrics.setDescription(strings.Replace(prefix+kv.Key, "state/description", "", -1), kv.Value)
+			switch value := kv.Value.(type) {
+			case *pb.KeyValue_StrValue:
+				t.metrics.setDescription(strings.Replace(prefix+kv.Key, "state/description", "", -1), value.StrValue)
+			}
 		}
 
 		t.metrics.insert(prefix+kv.Key, kv.Value)

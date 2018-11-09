@@ -41,9 +41,16 @@ func (fe *Frontend) Start() {
 			</html>`))
 	})
 	http.HandleFunc(fe.cfg.MetricsPath, fe.handleMetricsRequest)
+	http.HandleFunc("/debug/dump", fe.handleDumpRequest)
 
 	log.Infof("Listening for %s on %s\n", fe.cfg.MetricsPath, fe.cfg.ListenAddress)
 	log.Fatal(http.ListenAndServe(fe.cfg.ListenAddress, nil))
+}
+
+func (fe *Frontend) handleDumpRequest(w http.ResponseWriter, r *http.Request) {
+	for _, line := range fe.collector.Dump() {
+		w.Write([]byte(line))
+	}
 }
 
 func (fe *Frontend) handleMetricsRequest(w http.ResponseWriter, r *http.Request) {

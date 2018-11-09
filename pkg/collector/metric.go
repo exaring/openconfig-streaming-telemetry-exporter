@@ -7,9 +7,10 @@ import (
 )
 
 type metric struct {
-	name   string
-	labels []string
-	value  interface{}
+	name              string
+	labels            []string
+	descriptionLabels []string
+	value             interface{}
 }
 
 type label struct {
@@ -55,14 +56,27 @@ func (m *metric) promLabelValues() []string {
 }
 
 func (m *metric) labelValues() []string {
-	res := make([]string, len(m.labels))
-	for i, l := range m.labels {
+	res := make([]string, len(m.labels)+len(m.descriptionLabels))
+
+	i := 0
+	for _, l := range m.labels {
 		parts := strings.Split(l, "=")
 		if len(parts) != 2 {
 			continue
 		}
 
 		res[i] = parts[1]
+		i++
+	}
+
+	for _, l := range m.descriptionLabels {
+		parts := strings.Split(l, "=")
+		if len(parts) != 2 {
+			continue
+		}
+
+		res[i] = parts[1]
+		i++
 	}
 
 	return res
@@ -84,14 +98,27 @@ func (m *metric) promLabelKeys() []string {
 }
 
 func (m *metric) labelKeys() []string {
-	res := make([]string, len(m.labels))
-	for i, l := range m.labels {
+	res := make([]string, len(m.labels)+len(m.descriptionLabels))
+
+	i := 0
+	for _, l := range m.labels {
 		parts := strings.Split(l, "=")
 		if len(parts) != 2 {
 			continue
 		}
 
 		res[i] = parts[0]
+		i++
+	}
+
+	for _, l := range m.descriptionLabels {
+		parts := strings.Split(l, "=")
+		if len(parts) != 2 {
+			continue
+		}
+
+		res[i] = parts[0]
+		i++
 	}
 
 	return res

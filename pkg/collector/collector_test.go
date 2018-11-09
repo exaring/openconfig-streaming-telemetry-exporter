@@ -227,6 +227,69 @@ func TestIntegration(t *testing.T) {
 			},
 			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{foo=\"bar\",name=\"xe-0/0/1\"} 100\ninterfaces_interface_state_oper_state{bar=\"foo\",name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{foo=\"bar\",name=\"xe-0/0/1\"} 1337\ninterfaces_interface_state_pkts{bar=\"foo\",name=\"xe-0/0/0\"} 1337\n",
 		},
+		{
+			name: "Test #4",
+			config: &config.Config{
+				StringValueMapping: map[string]map[string]int{
+					"/interfaces/interface/state/oper-state": map[string]int{
+						"UP":   100,
+						"DOWN": 200,
+					},
+				},
+				Targets: []*config.Target{
+					{
+						Paths: []*config.Path{
+							{
+								Path: "/interfaces/",
+							},
+						},
+					},
+				},
+			},
+			testdata: []pb.OpenConfigData{
+				{
+					Kv: []*pb.KeyValue{
+						{
+							Key: "__prefix__",
+							Value: &pb.KeyValue_StrValue{
+								StrValue: "/interfaces/",
+							},
+						},
+						{
+							Key: "interface[name='xe-0/0/0']/state/description",
+							Value: &pb.KeyValue_StrValue{
+								StrValue: "bar=foo",
+							},
+						},
+						{
+							Key: "interface[name='xe-0/0/0']/state/oper-state",
+							Value: &pb.KeyValue_StrValue{
+								StrValue: "UP",
+							},
+						},
+						{
+							Key: "interface[name='xe-0/0/0']/state/pkts",
+							Value: &pb.KeyValue_IntValue{
+								IntValue: 1337,
+							},
+						},
+						{
+							Key: "interface[name='xe-0/0/0']/subinterfaces/subinterface[index='123']/state/description",
+							Value: &pb.KeyValue_StrValue{
+								StrValue: "some=label",
+							},
+						},
+						{
+							Key: "interface[name='xe-0/0/0']/subinterfaces/subinterface[index='123']/state/pkts",
+							Value: &pb.KeyValue_IntValue{
+								IntValue: 232323,
+							},
+						},
+					},
+				},
+			},
+			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{foo=\"bar\",name=\"xe-0/0/1\"} 100\ninterfaces_interface_state_oper_state{bar=\"foo\",name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{foo=\"bar\",name=\"xe-0/0/1\"} 1337\ninterfaces_interface_state_pkts{bar=\"foo\",name=\"xe-0/0/0\"} 1337\n",
+		},
 	}
 
 	for _, test := range tests {
