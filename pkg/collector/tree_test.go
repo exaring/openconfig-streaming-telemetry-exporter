@@ -6,6 +6,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestSlashCount(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected int
+	}{
+		{
+			name:     "Test #1",
+			input:    "/interfaces/foo/bar/",
+			expected: 4,
+		},
+	}
+
+	for _, test := range tests {
+		x := slashCount([]rune(test.input))
+		assert.Equal(t, test.expected, x, test.name)
+	}
+}
 func TestGetMetrics(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -125,15 +143,22 @@ func TestTokenizePath(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
-		expected []string
+		expected []identifier
 	}{
 		{
 			name:  "Test #1",
 			input: "/interfaces/interface[name='xe-0/0/0']/pkts/",
-			expected: []string{
-				"interfaces",
-				"interface[name='xe-0/0/0']",
-				"pkts",
+			expected: []identifier{
+				{
+					name: "interfaces",
+				},
+				{
+					name:   "interface",
+					labels: "name='xe-0/0/0'",
+				},
+				{
+					name: "pkts",
+				},
 			},
 		},
 	}
@@ -163,6 +188,26 @@ func TestPathToIdentifiers(t *testing.T) {
 				},
 				{
 					name: "pkts",
+				},
+			},
+		},
+		{
+			name:  "Test #2",
+			input: "/interfaces/interface[name='xe-0/0/0']/pkts/state[with='label']",
+			expected: []identifier{
+				{
+					name: "interfaces",
+				},
+				{
+					name:   "interface",
+					labels: "name='xe-0/0/0'",
+				},
+				{
+					name: "pkts",
+				},
+				{
+					name:   "state",
+					labels: "with='label'",
 				},
 			},
 		},
@@ -198,7 +243,7 @@ func TestPathElementToIdentifier(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		id := pathElementToIdentifier(test.input)
+		id := pathElementToIdentifier([]rune(test.input))
 		assert.Equal(t, test.expected, id, test.name)
 	}
 }

@@ -235,17 +235,6 @@ func labelStringToLabels(input string) []label {
 	return res
 }
 
-func pathToIdentifiers(p string) []identifier {
-	tokens := tokenizePath(p)
-	ids := make([]identifier, len(tokens))
-
-	for i, t := range tokens {
-		ids[i] = pathElementToIdentifier(t)
-	}
-
-	return ids
-}
-
 func dropSlashPrefixSuffix(p string) []rune {
 	start := 0
 	end := len(p)
@@ -272,12 +261,12 @@ func slashCount(runes []rune) int {
 	return count
 }
 
-func tokenizePath(p string) []string {
+func pathToIdentifiers(p string) []identifier {
 	runes := dropSlashPrefixSuffix(p)
-	res := make([]string, 0, slashCount(runes))
+	res := make([]identifier, 0, slashCount(runes))
 
 	bracesLevel := 0
-	tmp := make([]rune, 0, 25)
+	tmp := make([]rune, 0, 256)
 	for i := 0; i < len(runes); i++ {
 		if runes[i] == '[' {
 			bracesLevel++
@@ -291,8 +280,13 @@ func tokenizePath(p string) []string {
 
 		if runes[i] == '/' {
 			if bracesLevel == 0 {
-				res = append(res, string(tmp))
-				tmp = make([]rune, 0, 15)
+				res = append(res, pathElementToIdentifier(tmp))
+				tmp = tmp[:0]
+
+				/*tmpCopy := make([]rune, len(tmp))
+				copy(tmpCopy, tmp)
+				res = append(res, tmpCopy)
+				tmp = tmp[:0] // clear tmp instead of allocating a new slice*/
 				continue
 			}
 		}
@@ -301,19 +295,18 @@ func tokenizePath(p string) []string {
 	}
 
 	if len(tmp) > 0 {
-		res = append(res, string(tmp))
+		//res = append(res, tmp)
+		res = append(res, pathElementToIdentifier(tmp))
 	}
 
 	return res
 }
 
-func pathElementToIdentifier(e string) identifier {
-	data := []rune(e)
-
-	key := make([]rune, 0, 15)
+func pathElementToIdentifier(data []rune) identifier {
+	key := make([]rune, 0, 25)
 	labelsString := ""
 	withinAngledBraces := false
-	tmp := make([]rune, 0, 10)
+	tmp := make([]rune, 0, 25)
 
 	for i := 0; i < len(data); i++ {
 		if !withinAngledBraces {
