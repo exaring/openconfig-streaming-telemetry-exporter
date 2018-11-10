@@ -139,36 +139,6 @@ func TestGetMetrics(t *testing.T) {
 	}
 }
 
-func TestTokenizePath(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected []identifier
-	}{
-		{
-			name:  "Test #1",
-			input: "/interfaces/interface[name='xe-0/0/0']/pkts/",
-			expected: []identifier{
-				{
-					name: "interfaces",
-				},
-				{
-					name:   "interface",
-					labels: "name='xe-0/0/0'",
-				},
-				{
-					name: "pkts",
-				},
-			},
-		},
-	}
-
-	for _, test := range tests {
-		tokens := tokenizePath(test.input)
-		assert.Equal(t, test.expected, tokens, test.name)
-	}
-}
-
 func TestPathToIdentifiers(t *testing.T) {
 	tests := []struct {
 		name     string

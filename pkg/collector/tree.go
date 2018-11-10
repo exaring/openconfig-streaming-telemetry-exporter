@@ -3,7 +3,6 @@ package collector
 import (
 	"fmt"
 	"regexp"
-	"sort"
 	"strings"
 	"sync"
 )
@@ -34,7 +33,7 @@ type node struct {
 	real        bool
 	value       interface{}
 	description string
-	children    map[identifier]*node
+	children    []node
 }
 
 type identifier struct {
@@ -49,7 +48,7 @@ func newTree() *tree {
 func newNode(id identifier) *node {
 	return &node{
 		id:       id,
-		children: make(map[identifier]*node),
+		children: make([]node, 0, 10),
 	}
 }
 
@@ -122,11 +121,21 @@ func (n *node) dump(level int) []string {
 
 func (n *node) setDescription(path []identifier, v string) {
 	if len(path) > 0 {
-		if _, ok := n.children[path[0]]; !ok {
-			n.children[path[0]] = newNode(path[0])
+		for i := range n.children {
+			if n.children[i].id != path[0] {
+				continue
+			}
+
+			// Found
+			n.children[i].setDescription(path[1:], v)
+
+			return
 		}
 
-		n.children[path[0]].setDescription(path[1:], v)
+		// Not Found
+		newChild := newNode(path[0])
+		newChild.setDescription(path[1:], v)
+		n.children = append(n.children, *newChild)
 		return
 	}
 
@@ -174,17 +183,6 @@ func (n *node) getMetrics(path string, res *metricSet, labels []label, descripti
 		descriptionLabels = labelStringToLabels(n.description)
 	}
 
-	keys := make([]identifier, len(n.children))
-	i := 0
-	for key := range n.children {
-		keys[i] = key
-		i++
-	}
-
-	sort.Slice(keys, func(i, j int) bool {
-		return keys[i].name < keys[j].name
-	})
-
 	if n.real {
 		m := metric{
 			name:   path,
@@ -195,18 +193,28 @@ func (n *node) getMetrics(path string, res *metricSet, labels []label, descripti
 		res.append(m)
 	}
 
-	for _, key := range keys {
-		n.children[key].getMetrics(path, res, labels, descriptionLabels)
+	for i := range n.children {
+		n.children[i].getMetrics(path, res, labels, descriptionLabels)
 	}
 }
 
 func (n *node) insert(path []identifier, v interface{}) {
 	if len(path) > 0 {
-		if _, ok := n.children[path[0]]; !ok {
-			n.children[path[0]] = newNode(path[0])
+		for i := range n.children {
+			if n.children[i].id != path[0] {
+				continue
+			}
+
+			// Found
+			n.children[i].insert(path[1:], v)
+
+			return
 		}
 
-		n.children[path[0]].insert(path[1:], v)
+		// Not Found
+		newChild := newNode(path[0])
+		newChild.insert(path[1:], v)
+		n.children = append(n.children, *newChild)
 		return
 	}
 
@@ -282,11 +290,6 @@ func pathToIdentifiers(p string) []identifier {
 			if bracesLevel == 0 {
 				res = append(res, pathElementToIdentifier(tmp))
 				tmp = tmp[:0]
-
-				/*tmpCopy := make([]rune, len(tmp))
-				copy(tmpCopy, tmp)
-				res = append(res, tmpCopy)
-				tmp = tmp[:0] // clear tmp instead of allocating a new slice*/
 				continue
 			}
 		}
@@ -295,7 +298,6 @@ func pathToIdentifiers(p string) []identifier {
 	}
 
 	if len(tmp) > 0 {
-		//res = append(res, tmp)
 		res = append(res, pathElementToIdentifier(tmp))
 	}
 

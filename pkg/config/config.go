@@ -29,8 +29,8 @@ type Target struct {
 type Path struct {
 	Path                string `yaml:"path"`
 	SuppressUnchanged   bool   `yaml:"suppress_unchanged"`
-	MaxSilentIntervalMS uint16 `yaml:"max_silent_interval_ms"`
-	SampleFrequencyMS   uint16 `yaml:"sample_frequency_ms"`
+	MaxSilentIntervalMS uint64 `yaml:"max_silent_interval_ms"`
+	SampleFrequencyMS   uint64 `yaml:"sample_frequency_ms"`
 }
 
 // New creates a new empty config object
