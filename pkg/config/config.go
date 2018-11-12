@@ -8,6 +8,8 @@ import (
 )
 
 const (
+	defaultListenAddress       = ":9513"
+	defaultMetricsPath         = "/metrics"
 	defaultKeepaliveSeconds    = 1
 	defaultTimeoutFactor       = 3
 	defaultSampleFrequencyMS   = 5000
@@ -67,11 +69,11 @@ func Load(reader io.Reader) (*Config, error) {
 
 func (c *Config) loadDefaults() {
 	if c.ListenAddress == "" {
-		c.ListenAddress = ":9513"
+		c.ListenAddress = defaultListenAddress
 	}
 
 	if c.MetricsPath == "" {
-		c.MetricsPath = "/metrics"
+		c.MetricsPath = defaultMetricsPath
 	}
 
 	for i := range c.Targets {
