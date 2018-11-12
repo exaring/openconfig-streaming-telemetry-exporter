@@ -7,6 +7,14 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+const (
+	defaultKeepaliveSeconds    = 1
+	defaultTimeoutFactor       = 3
+	defaultSampleFrequencyMS   = 5000
+	defaultMaxSilentIntervalMS = 15000
+	defaultSuppressUnchanged   = true
+)
+
 // Config is the configuration of the prom-telemetry-gw
 type Config struct {
 	ListenAddress      string                    `yaml:"listen_address"`
@@ -18,9 +26,11 @@ type Config struct {
 
 // Target represents a monitored system
 type Target struct {
-	Hostname string  `yaml:"hostname"`
-	Port     uint16  `yaml:"port"`
-	Paths    []*Path `yaml:"paths"`
+	Hostname  string  `yaml:"hostname"`
+	Port      uint16  `yaml:"port"`
+	Keepalive uint16  `yaml:"keepalive"`
+	Timeout   uint16  `yaml:"timeout"`
+	Paths     []*Path `yaml:"paths"`
 }
 
 // Path represents a resource identifier, e.g. /junos/system/linecard/cpu/memory/
@@ -28,7 +38,7 @@ type Target struct {
 // for more examples.
 type Path struct {
 	Path                string `yaml:"path"`
-	SuppressUnchanged   bool   `yaml:"suppress_unchanged"`
+	SuppressUnchanged   *bool  `yaml:"suppress_unchanged"`
 	MaxSilentIntervalMS uint64 `yaml:"max_silent_interval_ms"`
 	SampleFrequencyMS   uint64 `yaml:"sample_frequency_ms"`
 }
@@ -51,5 +61,41 @@ func Load(reader io.Reader) (*Config, error) {
 		return nil, err
 	}
 
+	c.loadDefaults()
 	return c, nil
+}
+
+func (c *Config) loadDefaults() {
+	if c.ListenAddress == "" {
+		c.ListenAddress = ":9513"
+	}
+
+	if c.MetricsPath == "" {
+		c.MetricsPath = "/metrics"
+	}
+
+	for i := range c.Targets {
+		if c.Targets[i].Keepalive == 0 {
+			c.Targets[i].Keepalive = defaultKeepaliveSeconds
+		}
+
+		if c.Targets[i].Timeout == 0 {
+			c.Targets[i].Timeout = defaultTimeoutFactor * c.Targets[i].Keepalive
+		}
+
+		for j := range c.Targets[i].Paths {
+			if c.Targets[i].Paths[j].SampleFrequencyMS == 0 {
+				c.Targets[i].Paths[j].SampleFrequencyMS = defaultSampleFrequencyMS
+			}
+
+			if c.Targets[i].Paths[j].MaxSilentIntervalMS == 0 {
+				c.Targets[i].Paths[j].MaxSilentIntervalMS = defaultMaxSilentIntervalMS
+			}
+
+			if c.Targets[i].Paths[j].SuppressUnchanged == nil {
+				x := defaultSuppressUnchanged
+				c.Targets[i].Paths[j].SuppressUnchanged = &x
+			}
+		}
+	}
 }

@@ -57,7 +57,7 @@ func (t *Target) subscriptionRequest() *pb.SubscriptionRequest {
 	for _, p := range t.paths {
 		subReq.PathList = append(subReq.PathList, &pb.Path{
 			Path:              p.Path,
-			SuppressUnchanged: p.SuppressUnchanged,
+			SuppressUnchanged: *p.SuppressUnchanged,
 			MaxSilentInterval: uint32(p.MaxSilentIntervalMS),
 			SampleFrequency:   uint32(p.SampleFrequencyMS),
 		})
@@ -87,6 +87,7 @@ func (t *Target) Serve(con *grpc.ClientConn) {
 		data, err := stream.Recv()
 		if err != nil {
 			log.Errorf("Failed to receive stream: %v", err)
+			t.metrics = newTree()
 			return
 		}
 		i++
