@@ -6,17 +6,18 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-
-	"google.golang.org/grpc"
-
-	"github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/collector"
-	"github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/config"
-	"github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/frontend"
+	"time"
 
 	_ "net/http/pprof"
 
 	_ "github.com/q3k/statusz"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
+
+	"github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/collector"
+	"github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/config"
+	"github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/frontend"
 )
 
 const version string = "0.0.0"
@@ -51,7 +52,10 @@ func main() {
 	for _, target := range cfg.Targets {
 		go func(target *config.Target) {
 			t := col.AddTarget(target, cfg.StringValueMapping)
-			conn, err := grpc.Dial(fmt.Sprintf("%s:%d", target.Hostname, target.Port), grpc.WithInsecure())
+			conn, err := grpc.Dial(fmt.Sprintf("%s:%d", target.Hostname, target.Port), grpc.WithInsecure(), grpc.WithKeepaliveParams(keepalive.ClientParameters{
+				Time:    time.Second * time.Duration(target.KeepaliveS),
+				Timeout: time.Second * time.Duration(target.TimeoutS),
+			}))
 			if err != nil {
 				log.Errorf("Unable to dial: %v", err)
 				return

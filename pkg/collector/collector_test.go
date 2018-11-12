@@ -23,6 +23,8 @@ import (
 
 type mockTelemetryServer struct {
 	testdata []pb.OpenConfigData
+	wg       sync.WaitGroup
+	stop     chan struct{}
 }
 
 func (m *mockTelemetryServer) TelemetrySubscribe(req *pb.SubscriptionRequest, srv pb.OpenConfigTelemetry_TelemetrySubscribeServer) error {
@@ -30,6 +32,8 @@ func (m *mockTelemetryServer) TelemetrySubscribe(req *pb.SubscriptionRequest, sr
 		srv.Send(&test)
 	}
 
+	m.wg.Done()
+	<-m.stop
 	return nil
 }
 
@@ -341,9 +345,85 @@ func TestIntegration(t *testing.T) {
 			},
 			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{bar=\"baz\",name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{name=\"xe-0/0/1\"} 1337\n",
 		},
+		{
+			name: "Test #6",
+			config: &config.Config{
+				StringValueMapping: map[string]map[string]int{
+					"/interfaces/interface/state/oper-state": map[string]int{
+						"UP":   100,
+						"DOWN": 200,
+					},
+				},
+				Targets: []*config.Target{
+					{
+						Paths: []*config.Path{
+							{
+								Path: "/interfaces/",
+							},
+						},
+					},
+				},
+			},
+			testdata: []pb.OpenConfigData{
+				{
+					Kv: []*pb.KeyValue{
+						{
+							Key: "__prefix__",
+							Value: &pb.KeyValue_StrValue{
+								StrValue: "/interfaces/",
+							},
+						},
+						{
+							Key: "interface[name='xe-0/0/0']/state/description",
+							Value: &pb.KeyValue_StrValue{
+								StrValue: "foo,bar=baz",
+							},
+						},
+						{
+							Key: "interface[name='xe-0/0/0']/state/oper-state",
+							Value: &pb.KeyValue_StrValue{
+								StrValue: "UP",
+							},
+						},
+						{
+							Key: "interface[name='xe-0/0/0']/state/some-double",
+							Value: &pb.KeyValue_DoubleValue{
+								DoubleValue: 1338,
+							},
+						},
+						{
+							Key: "interface[name='xe-0/0/0']/state/some-uint",
+							Value: &pb.KeyValue_UintValue{
+								UintValue: 232323,
+							},
+						},
+						{
+							Key: "interface[name='xe-0/0/0']/state/some-sint",
+							Value: &pb.KeyValue_SintValue{
+								SintValue: 4242,
+							},
+						},
+						{
+							Key: "interface[name='xe-0/0/0']/state/some-bool",
+							Value: &pb.KeyValue_BoolValue{
+								BoolValue: true,
+							},
+						},
+						{
+							Key: "interface[name='xe-0/0/1']/state/pkts",
+							Value: &pb.KeyValue_IntValue{
+								IntValue: 1337,
+							},
+						},
+					},
+				},
+			},
+			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{bar=\"baz\",name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{name=\"xe-0/0/1\"} 1337\n# HELP interfaces_interface_state_some_bool interfaces/interface/state/some-bool\n# TYPE interfaces_interface_state_some_bool gauge\ninterfaces_interface_state_some_bool{bar=\"baz\",name=\"xe-0/0/0\"} 1\n# HELP interfaces_interface_state_some_double interfaces/interface/state/some-double\n# TYPE interfaces_interface_state_some_double gauge\ninterfaces_interface_state_some_double{bar=\"baz\",name=\"xe-0/0/0\"} 1338\n# HELP interfaces_interface_state_some_sint interfaces/interface/state/some-sint\n# TYPE interfaces_interface_state_some_sint gauge\ninterfaces_interface_state_some_sint{bar=\"baz\",name=\"xe-0/0/0\"} 4242\n# HELP interfaces_interface_state_some_uint interfaces/interface/state/some-uint\n# TYPE interfaces_interface_state_some_uint gauge\ninterfaces_interface_state_some_uint{bar=\"baz\",name=\"xe-0/0/0\"} 232323\n",
+		},
 	}
 
 	for _, test := range tests {
+		test.config.LoadDefaults()
 		collector := New(test.config)
 
 		bufSize := 1024 * 1024
@@ -352,6 +432,7 @@ func TestIntegration(t *testing.T) {
 		telemetryServer := &mockTelemetryServer{
 			testdata: test.testdata,
 		}
+		telemetryServer.wg.Add(1)
 		pb.RegisterOpenConfigTelemetryServer(s, telemetryServer)
 		go func() {
 			if err := s.Serve(lis); err != nil {
@@ -359,9 +440,9 @@ func TestIntegration(t *testing.T) {
 			}
 		}()
 
-		var wg sync.WaitGroup
+		var serveWG sync.WaitGroup
 		for _, confTarget := range test.config.Targets {
-			wg.Add(1)
+			serveWG.Add(1)
 			go func(confTarget *config.Target) {
 				ta := collector.AddTarget(confTarget, test.config.StringValueMapping)
 
@@ -376,11 +457,14 @@ func TestIntegration(t *testing.T) {
 
 				ta.maxReads = len(test.testdata)
 				ta.Serve(conn)
-				wg.Done()
+				serveWG.Done()
 			}(confTarget)
 		}
 
-		wg.Wait()
+		telemetryServer.wg.Wait() // Wait for grpc server to write all data
+		serveWG.Wait()            // Wait for target server to save all data in the tree
+
+		//time.Sleep(time.Second * 5)
 		w := newMockHTTPResponseWriter()
 		r := &http.Request{
 			Method: "GET",
@@ -396,6 +480,8 @@ func TestIntegration(t *testing.T) {
 			ErrorHandling: promhttp.ContinueOnError}).ServeHTTP(w, r)
 
 		assert.Equal(t, test.expected, string(w.buf.Bytes()), test.name)
+
+		//telemetryServer.stop <- struct{}{}
 	}
 }
 
