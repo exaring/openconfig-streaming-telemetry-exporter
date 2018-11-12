@@ -9,7 +9,7 @@ import (
 	"github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/config"
 	pb "github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/telemetry"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
 
@@ -105,7 +105,19 @@ func (t *Target) processOpenConfigData(data *pb.OpenConfigData) {
 	prefix := ""
 	for _, kv := range data.Kv {
 		if kv.Key == "__prefix__" {
-			prefix = kv.Value.(*pb.KeyValue_StrValue).StrValue
+			if kv.Value == nil {
+				log.Warningf("Received __prefix__ key with nil value from %s", t.address)
+				prefix = ""
+				continue
+			}
+
+			switch value := kv.Value.(type) {
+			case *pb.KeyValue_StrValue:
+				prefix = value.StrValue
+			default:
+				log.Warningf("Received __prefix__ key with non string value from %s", t.address)
+			}
+
 			continue
 		}
 
@@ -114,6 +126,10 @@ func (t *Target) processOpenConfigData(data *pb.OpenConfigData) {
 		}
 
 		if strings.HasSuffix(kv.Key, "state/description") {
+			if kv.Value == nil {
+				continue
+			}
+
 			switch value := kv.Value.(type) {
 			case *pb.KeyValue_StrValue:
 				t.metrics.setDescription(strings.Replace(prefix+kv.Key, "state/description", "", -1), value.StrValue)

@@ -89,6 +89,9 @@ func (t *tree) insert(path string, v interface{}) {
 }
 
 func (t *tree) getMetrics() []metric {
+	t.lock.RLock()
+	defer t.lock.RUnlock()
+
 	if t.root == nil {
 		return nil
 	}
