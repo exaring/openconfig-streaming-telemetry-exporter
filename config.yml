@@ -1,0 +1,25 @@
+listen_address: 0.0.0.0:9513
+metrics_path: /metrics
+targets:
+- hostname: 203.0.113.1
+  port: 50051
+  paths:
+  - path: /interfaces/
+    suppress_unchanged: false
+    max_silent_interval_ms: 20000
+    sample_frequency_ms: 2000
+  - path: /network-instances/network-instance/protocols/protocol/bgp/
+    suppress_unchanged: false
+    max_silent_interval_ms: 20000
+    sample_frequency_ms: 2000
+string_value_mapping:
+  /interfaces/interface/state/oper-status:
+    DOWN: 0
+    UP: 1
+  /network-instances/network-instance/protocols/protocol/bgp/neighbors/neighbor/state/session-state:
+    ACTIVE: 3
+    CONNECT: 2
+    ESTABLISHED: 6
+    IDLE: 1
+    OPENCONFIRM: 5
+    OPENSENT: 4
