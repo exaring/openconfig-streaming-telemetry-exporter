@@ -62,3 +62,8 @@ string_value_mapping:
 
 <https://www.juniper.net/documentation/en_US/junos/topics/reference/general/junos-telemetry-interface-grpc-sensors.html>  
 <https://www.juniper.net/documentation/en_US/junos/information-products/pathway-pages/open-config/open-config-feature-guide.pdf>
+
+### Debug
+
+If you want to see the internal tree structure you should visit /debug/dump.
+General status information is available under /debug/state.
