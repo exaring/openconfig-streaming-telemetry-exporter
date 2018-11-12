@@ -145,6 +145,10 @@ func (t *Target) collect(ch chan<- prometheus.Metric, wg *sync.WaitGroup) {
 
 	res := t.metrics.getMetrics()
 	for _, m := range res {
+		if m.value == nil {
+			continue
+		}
+
 		valueType := prometheus.GaugeValue
 		if strings.Contains(m.name, "counters") {
 			valueType = prometheus.CounterValue
