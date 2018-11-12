@@ -34,6 +34,7 @@ func (c *Collector) Stop() {
 	}
 }
 
+// Dump dumps the collectors internal state
 func (c *Collector) Dump() []string {
 	c.targetsMu.RLock()
 	defer c.targetsMu.RUnlock()
