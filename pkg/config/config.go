@@ -28,11 +28,11 @@ type Config struct {
 
 // Target represents a monitored system
 type Target struct {
-	Hostname  string  `yaml:"hostname"`
-	Port      uint16  `yaml:"port"`
-	Keepalive uint16  `yaml:"keepalive"`
-	Timeout   uint16  `yaml:"timeout"`
-	Paths     []*Path `yaml:"paths"`
+	Hostname   string  `yaml:"hostname"`
+	Port       uint16  `yaml:"port"`
+	KeepaliveS uint16  `yaml:"keepalive_s"`
+	TimeoutS   uint16  `yaml:"timeout_s"`
+	Paths      []*Path `yaml:"paths"`
 }
 
 // Path represents a resource identifier, e.g. /junos/system/linecard/cpu/memory/
@@ -63,11 +63,12 @@ func Load(reader io.Reader) (*Config, error) {
 		return nil, err
 	}
 
-	c.loadDefaults()
+	c.LoadDefaults()
 	return c, nil
 }
 
-func (c *Config) loadDefaults() {
+// LoadDefaults loads default settings for config c
+func (c *Config) LoadDefaults() {
 	if c.ListenAddress == "" {
 		c.ListenAddress = defaultListenAddress
 	}
@@ -77,12 +78,12 @@ func (c *Config) loadDefaults() {
 	}
 
 	for i := range c.Targets {
-		if c.Targets[i].Keepalive == 0 {
-			c.Targets[i].Keepalive = defaultKeepaliveSeconds
+		if c.Targets[i].KeepaliveS == 0 {
+			c.Targets[i].KeepaliveS = defaultKeepaliveSeconds
 		}
 
-		if c.Targets[i].Timeout == 0 {
-			c.Targets[i].Timeout = defaultTimeoutFactor * c.Targets[i].Keepalive
+		if c.Targets[i].TimeoutS == 0 {
+			c.Targets[i].TimeoutS = defaultTimeoutFactor * c.Targets[i].KeepaliveS
 		}
 
 		for j := range c.Targets[i].Paths {

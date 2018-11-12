@@ -23,6 +23,8 @@ import (
 
 type mockTelemetryServer struct {
 	testdata []pb.OpenConfigData
+	wg       sync.WaitGroup
+	stop     chan struct{}
 }
 
 func (m *mockTelemetryServer) TelemetrySubscribe(req *pb.SubscriptionRequest, srv pb.OpenConfigTelemetry_TelemetrySubscribeServer) error {
@@ -30,6 +32,8 @@ func (m *mockTelemetryServer) TelemetrySubscribe(req *pb.SubscriptionRequest, sr
 		srv.Send(&test)
 	}
 
+	m.wg.Done()
+	<-m.stop
 	return nil
 }
 
@@ -344,6 +348,7 @@ func TestIntegration(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test.config.LoadDefaults()
 		collector := New(test.config)
 
 		bufSize := 1024 * 1024
@@ -352,6 +357,7 @@ func TestIntegration(t *testing.T) {
 		telemetryServer := &mockTelemetryServer{
 			testdata: test.testdata,
 		}
+		telemetryServer.wg.Add(1)
 		pb.RegisterOpenConfigTelemetryServer(s, telemetryServer)
 		go func() {
 			if err := s.Serve(lis); err != nil {
@@ -359,9 +365,9 @@ func TestIntegration(t *testing.T) {
 			}
 		}()
 
-		var wg sync.WaitGroup
+		var serveWG sync.WaitGroup
 		for _, confTarget := range test.config.Targets {
-			wg.Add(1)
+			serveWG.Add(1)
 			go func(confTarget *config.Target) {
 				ta := collector.AddTarget(confTarget, test.config.StringValueMapping)
 
@@ -376,11 +382,14 @@ func TestIntegration(t *testing.T) {
 
 				ta.maxReads = len(test.testdata)
 				ta.Serve(conn)
-				wg.Done()
+				serveWG.Done()
 			}(confTarget)
 		}
 
-		wg.Wait()
+		telemetryServer.wg.Wait() // Wait for grpc server to write all data
+		serveWG.Wait()            // Wait for target server to save all data in the tree
+
+		//time.Sleep(time.Second * 5)
 		w := newMockHTTPResponseWriter()
 		r := &http.Request{
 			Method: "GET",
@@ -396,6 +405,8 @@ func TestIntegration(t *testing.T) {
 			ErrorHandling: promhttp.ContinueOnError}).ServeHTTP(w, r)
 
 		assert.Equal(t, test.expected, string(w.buf.Bytes()), test.name)
+
+		//telemetryServer.stop <- struct{}{}
 	}
 }
 

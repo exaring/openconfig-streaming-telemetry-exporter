@@ -90,15 +90,13 @@ func (t *Target) Serve(con *grpc.ClientConn) {
 			t.metrics = newTree()
 			return
 		}
-		i++
-
-		if t.maxReads > 0 {
-			if t.maxReads < i {
-				return
-			}
-		}
 
 		t.processOpenConfigData(data)
+
+		i++
+		if t.maxReads > 0 && i >= t.maxReads {
+			return
+		}
 	}
 }
 

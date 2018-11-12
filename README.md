@@ -32,6 +32,10 @@ targets:
 - hostname: 203.0.113.1
   # Port of the openconfig target
   port: 50051
+  # GRPC keepalive in seconds
+  keepalive_s: 1
+  # GRPC timeout in seconds
+  timeout_s: 3
   # Openconfig paths to subscribe to
   paths:
     # Network interfaces metrics path

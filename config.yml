@@ -3,6 +3,8 @@ metrics_path: /metrics
 targets:
 - hostname: 203.0.113.1
   port: 50051
+  keepalive_s: 1
+  timeout_s: 3
   paths:
   - path: /interfaces/
     suppress_unchanged: false

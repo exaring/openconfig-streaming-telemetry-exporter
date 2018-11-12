@@ -53,8 +53,8 @@ func main() {
 		go func(target *config.Target) {
 			t := col.AddTarget(target, cfg.StringValueMapping)
 			conn, err := grpc.Dial(fmt.Sprintf("%s:%d", target.Hostname, target.Port), grpc.WithInsecure(), grpc.WithKeepaliveParams(keepalive.ClientParameters{
-				Time:    time.Second * time.Duration(target.Keepalive),
-				Timeout: time.Second * time.Duration(target.Timeout),
+				Time:    time.Second * time.Duration(target.KeepaliveS),
+				Timeout: time.Second * time.Duration(target.TimeoutS),
 			}))
 			if err != nil {
 				log.Errorf("Unable to dial: %v", err)
