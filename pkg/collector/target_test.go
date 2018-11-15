@@ -12,7 +12,7 @@ func TestProcessOpenConfigData(t *testing.T) {
 		name     string
 		target   *Target
 		input    *pb.OpenConfigData
-		expected *Target
+		expected *tree
 	}{
 		{
 			name: "All ok",
@@ -35,26 +35,24 @@ func TestProcessOpenConfigData(t *testing.T) {
 					},
 				},
 			},
-			expected: &Target{
-				metrics: &tree{
-					root: &node{
-						id: identifier{},
-						children: []node{
-							{
-								id: identifier{
-									name: "foobar",
-								},
-								children: []node{
-									{
-										id: identifier{
-											name: "baz",
-										},
-										real: true,
-										value: &pb.KeyValue_StrValue{
-											StrValue: "hello world",
-										},
-										children: []node{},
+			expected: &tree{
+				root: &node{
+					id: identifier{},
+					children: []node{
+						{
+							id: identifier{
+								name: "foobar",
+							},
+							children: []node{
+								{
+									id: identifier{
+										name: "baz",
 									},
+									real: true,
+									value: &pb.KeyValue_StrValue{
+										StrValue: "hello world",
+									},
+									children: []node{},
 								},
 							},
 						},
@@ -89,26 +87,24 @@ func TestProcessOpenConfigData(t *testing.T) {
 					},
 				},
 			},
-			expected: &Target{
-				metrics: &tree{
-					root: &node{
-						id: identifier{},
-						children: []node{
-							{
-								id: identifier{
-									name: "foobar",
-								},
-								children: []node{
-									{
-										id: identifier{
-											name: "baz",
-										},
-										real: true,
-										value: &pb.KeyValue_StrValue{
-											StrValue: "hello world",
-										},
-										children: []node{},
+			expected: &tree{
+				root: &node{
+					id: identifier{},
+					children: []node{
+						{
+							id: identifier{
+								name: "foobar",
+							},
+							children: []node{
+								{
+									id: identifier{
+										name: "baz",
 									},
+									real: true,
+									value: &pb.KeyValue_StrValue{
+										StrValue: "hello world",
+									},
+									children: []node{},
 								},
 							},
 						},
@@ -135,21 +131,19 @@ func TestProcessOpenConfigData(t *testing.T) {
 					},
 				},
 			},
-			expected: &Target{
-				metrics: &tree{
-					root: &node{
-						id: identifier{},
-						children: []node{
-							{
-								id: identifier{
-									name: "baz",
-								},
-								real: true,
-								value: &pb.KeyValue_StrValue{
-									StrValue: "hello world",
-								},
-								children: []node{},
+			expected: &tree{
+				root: &node{
+					id: identifier{},
+					children: []node{
+						{
+							id: identifier{
+								name: "baz",
 							},
+							real: true,
+							value: &pb.KeyValue_StrValue{
+								StrValue: "hello world",
+							},
+							children: []node{},
 						},
 					},
 				},
@@ -176,21 +170,19 @@ func TestProcessOpenConfigData(t *testing.T) {
 					},
 				},
 			},
-			expected: &Target{
-				metrics: &tree{
-					root: &node{
-						id: identifier{},
-						children: []node{
-							{
-								id: identifier{
-									name: "baz",
-								},
-								real: true,
-								value: &pb.KeyValue_StrValue{
-									StrValue: "hello world",
-								},
-								children: []node{},
+			expected: &tree{
+				root: &node{
+					id: identifier{},
+					children: []node{
+						{
+							id: identifier{
+								name: "baz",
 							},
+							real: true,
+							value: &pb.KeyValue_StrValue{
+								StrValue: "hello world",
+							},
+							children: []node{},
 						},
 					},
 				},
@@ -200,6 +192,6 @@ func TestProcessOpenConfigData(t *testing.T) {
 
 	for _, test := range tests {
 		test.target.processOpenConfigData(test.input)
-		assert.Equal(t, test.expected, test.target, test.name)
+		assert.Equal(t, test.expected.root, test.target.metrics.root, test.name)
 	}
 }
