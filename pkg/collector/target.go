@@ -5,12 +5,18 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/config"
 	pb "github.com/exaring/openconfig-streaming-telemetry-exporter/pkg/telemetry"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+)
+
+const (
+	backoffInit = time.Second
+	backoffMax  = time.Second * 16
 )
 
 // Target represents a streaming telemetry exporting network device
@@ -70,32 +76,48 @@ func (t *Target) subscriptionRequest() *pb.SubscriptionRequest {
 func (t *Target) Serve(con *grpc.ClientConn) {
 	defer con.Close()
 
-	cl := pb.NewOpenConfigTelemetryClient(con)
-	stream, err := cl.TelemetrySubscribe(context.Background(), t.subscriptionRequest())
-	if err != nil {
-		panic(err)
-	}
-
-	i := 0
+	backoff := time.Duration(0)
 	for {
-		select {
-		case <-t.stopCh:
-			return
-		default:
-		}
-
-		data, err := stream.Recv()
+		time.Sleep(backoff)
+		cl := pb.NewOpenConfigTelemetryClient(con)
+		stream, err := cl.TelemetrySubscribe(context.Background(), t.subscriptionRequest())
 		if err != nil {
-			log.Errorf("Failed to receive stream: %v", err)
-			t.metrics = newTree()
-			return
+			log.Errorf("TelemetrySubscribe failed: %v", err)
+			if backoff == 0 {
+				backoff = backoffInit
+				continue
+			}
+
+			if backoff < backoffMax {
+				backoff = backoff * 2
+				continue
+			}
+
+			continue
 		}
+		backoff = 0
 
-		t.processOpenConfigData(data)
+		i := 0
+		for {
+			select {
+			case <-t.stopCh:
+				return
+			default:
+			}
 
-		i++
-		if t.maxReads > 0 && i >= t.maxReads {
-			return
+			data, err := stream.Recv()
+			if err != nil {
+				log.Errorf("Failed to receive stream: %v", err)
+				t.metrics = newTree()
+				break
+			}
+
+			t.processOpenConfigData(data)
+
+			i++
+			if t.maxReads > 0 && i >= t.maxReads {
+				return
+			}
 		}
 	}
 }
