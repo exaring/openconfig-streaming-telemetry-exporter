@@ -24,8 +24,9 @@ var (
 )
 
 type tree struct {
-	lock sync.RWMutex
-	root *node
+	lock    sync.RWMutex
+	root    *node
+	idCache *idCache
 }
 
 type node struct {
@@ -42,7 +43,9 @@ type identifier struct {
 }
 
 func newTree() *tree {
-	return &tree{}
+	return &tree{
+		idCache: newIDCache(),
+	}
 }
 
 func newNode(id identifier) *node {
@@ -67,7 +70,7 @@ func (t *tree) setDescription(path string, v string) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
-	ids := pathToIdentifiers(path)
+	ids := t.pathToIdentifiers(path)
 	if t.root == nil {
 		t.root = newNode(identifier{})
 	}
@@ -79,7 +82,7 @@ func (t *tree) insert(path string, v interface{}) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
-	ids := pathToIdentifiers(path)
+	ids := t.pathToIdentifiers(path)
 
 	if t.root == nil {
 		t.root = newNode(identifier{})
@@ -272,7 +275,12 @@ func slashCount(runes []rune) int {
 	return count
 }
 
-func pathToIdentifiers(p string) []identifier {
+func (t *tree) pathToIdentifiers(p string) []identifier {
+	ids := t.idCache.lookup(p)
+	if ids != nil {
+		return ids
+	}
+
 	runes := dropSlashPrefixSuffix(p)
 	res := make([]identifier, 0, slashCount(runes))
 
@@ -304,6 +312,7 @@ func pathToIdentifiers(p string) []identifier {
 		res = append(res, pathElementToIdentifier(tmp))
 	}
 
+	t.idCache.set(p, res)
 	return res
 }
 
