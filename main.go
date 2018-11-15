@@ -51,7 +51,7 @@ func main() {
 	col := collector.New(cfg)
 	for _, target := range cfg.Targets {
 		go func(target *config.Target) {
-			t := col.AddTarget(target, cfg.StringValueMapping)
+			t := col.AddTarget(target, cfg.StringValueMapping, true)
 			conn, err := grpc.Dial(fmt.Sprintf("%s:%d", target.Hostname, target.Port),
 				grpc.WithInsecure(),
 				grpc.WithKeepaliveParams(keepalive.ClientParameters{

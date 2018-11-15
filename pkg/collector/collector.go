@@ -47,10 +47,10 @@ func (c *Collector) Dump() []string {
 }
 
 // AddTarget adds a target to the collector
-func (c *Collector) AddTarget(tconf *config.Target, stringValueMapping map[string]map[string]int) *Target {
+func (c *Collector) AddTarget(tconf *config.Target, stringValueMapping map[string]map[string]int, reconnect bool) *Target {
 	c.targetsMu.Lock()
 	defer c.targetsMu.Unlock()
-	c.targets[tconf.Hostname] = newTarget(tconf, stringValueMapping)
+	c.targets[tconf.Hostname] = newTarget(tconf, stringValueMapping, reconnect)
 
 	return c.targets[tconf.Hostname]
 }

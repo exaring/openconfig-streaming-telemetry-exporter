@@ -28,15 +28,17 @@ type Target struct {
 	metrics            *tree
 	stringValueMapping map[string]map[string]int
 	stopCh             chan struct{}
+	reconnect          bool
 	maxReads           int
 }
 
-func newTarget(tconf *config.Target, stringValueMapping map[string]map[string]int) *Target {
+func newTarget(tconf *config.Target, stringValueMapping map[string]map[string]int, reconnect bool) *Target {
 	t := &Target{
 		address:            fmt.Sprintf("%s:%d", tconf.Hostname, tconf.Port),
 		paths:              tconf.Paths,
 		metrics:            newTree(),
 		stringValueMapping: stringValueMapping,
+		reconnect:          reconnect,
 	}
 
 	return t
@@ -72,17 +74,22 @@ func (t *Target) subscriptionRequest() *pb.SubscriptionRequest {
 	return subReq
 }
 
-// Serve is the main handling routine for a target
-func (t *Target) Serve(con *grpc.ClientConn) {
-	defer con.Close()
-
+func (t *Target) subscribe(con *grpc.ClientConn) pb.OpenConfigTelemetry_TelemetrySubscribeClient {
 	backoff := time.Duration(0)
+
 	for {
+		select {
+		case <-t.stopCh:
+			return nil
+		default:
+		}
+
 		time.Sleep(backoff)
 		cl := pb.NewOpenConfigTelemetryClient(con)
 		stream, err := cl.TelemetrySubscribe(context.Background(), t.subscriptionRequest())
 		if err != nil {
 			log.Errorf("TelemetrySubscribe failed: %v", err)
+
 			if backoff == 0 {
 				backoff = backoffInit
 				continue
@@ -95,29 +102,51 @@ func (t *Target) Serve(con *grpc.ClientConn) {
 
 			continue
 		}
-		backoff = 0
 
-		i := 0
-		for {
-			select {
-			case <-t.stopCh:
-				return
-			default:
-			}
+		return stream
+	}
+}
 
-			data, err := stream.Recv()
-			if err != nil {
-				log.Errorf("Failed to receive stream: %v", err)
-				t.metrics = newTree()
-				break
-			}
+func (t *Target) process(stream pb.OpenConfigTelemetry_TelemetrySubscribeClient) {
+	i := 0
 
-			t.processOpenConfigData(data)
+	for {
+		select {
+		case <-t.stopCh:
+			return
+		default:
+		}
 
-			i++
-			if t.maxReads > 0 && i >= t.maxReads {
-				return
-			}
+		data, err := stream.Recv()
+		if err != nil {
+			log.Errorf("Failed to receive stream: %v", err)
+			t.metrics = newTree()
+			break
+		}
+
+		t.processOpenConfigData(data)
+
+		i++
+		if t.maxReads > 0 && i >= t.maxReads {
+			return
+		}
+	}
+}
+
+// Serve is the main handling routine for a target
+func (t *Target) Serve(con *grpc.ClientConn) {
+	defer con.Close()
+
+	for {
+		stream := t.subscribe(con)
+		if stream == nil {
+			return
+		}
+
+		t.process(stream)
+
+		if !t.reconnect {
+			return
 		}
 	}
 }

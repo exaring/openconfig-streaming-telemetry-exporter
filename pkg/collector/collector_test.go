@@ -27,6 +27,12 @@ type mockTelemetryServer struct {
 	stop     chan struct{}
 }
 
+func newMockTelemetryServer(testdata []pb.OpenConfigData) *mockTelemetryServer {
+	return &mockTelemetryServer{
+		testdata: testdata,
+	}
+}
+
 func (m *mockTelemetryServer) TelemetrySubscribe(req *pb.SubscriptionRequest, srv pb.OpenConfigTelemetry_TelemetrySubscribeServer) error {
 	for _, test := range m.testdata {
 		srv.Send(&test)
@@ -428,11 +434,10 @@ func TestIntegration(t *testing.T) {
 
 		bufSize := 1024 * 1024
 		lis := bufconn.Listen(bufSize)
-		s := grpc.NewServer()
-		telemetryServer := &mockTelemetryServer{
-			testdata: test.testdata,
-		}
+
+		telemetryServer := newMockTelemetryServer(test.testdata)
 		telemetryServer.wg.Add(1)
+		s := grpc.NewServer()
 		pb.RegisterOpenConfigTelemetryServer(s, telemetryServer)
 		go func() {
 			if err := s.Serve(lis); err != nil {
@@ -444,7 +449,7 @@ func TestIntegration(t *testing.T) {
 		for _, confTarget := range test.config.Targets {
 			serveWG.Add(1)
 			go func(confTarget *config.Target) {
-				ta := collector.AddTarget(confTarget, test.config.StringValueMapping)
+				ta := collector.AddTarget(confTarget, test.config.StringValueMapping, false)
 
 				ctx := context.Background()
 				conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithDialer(func(string, time.Duration) (net.Conn, error) {
@@ -464,7 +469,6 @@ func TestIntegration(t *testing.T) {
 		telemetryServer.wg.Wait() // Wait for grpc server to write all data
 		serveWG.Wait()            // Wait for target server to save all data in the tree
 
-		//time.Sleep(time.Second * 5)
 		w := newMockHTTPResponseWriter()
 		r := &http.Request{
 			Method: "GET",
