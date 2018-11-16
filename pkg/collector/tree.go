@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var (
@@ -34,6 +36,7 @@ type node struct {
 	real        bool
 	value       interface{}
 	description string
+	desc        *prometheus.Desc
 	children    []node
 }
 
@@ -195,6 +198,12 @@ func (n *node) getMetrics(path string, res *metricSet, labels []label, descripti
 			value:  n.value,
 			labels: append(labels, descriptionLabels...),
 		}
+
+		if n.desc == nil {
+			n.desc = m.describe()
+		}
+
+		m.desc = n.desc
 
 		res.append(m)
 	}

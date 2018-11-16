@@ -8,6 +8,7 @@ type metric struct {
 	name   string
 	labels []label
 	value  interface{}
+	desc   *prometheus.Desc
 }
 
 type label struct {

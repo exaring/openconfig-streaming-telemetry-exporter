@@ -232,6 +232,6 @@ func (t *Target) collect(ch chan<- prometheus.Metric, wg *sync.WaitGroup) {
 			log.Fatalf("Unknown data type for %v", value)
 		}
 
-		ch <- prometheus.MustNewConstMetric(m.describe(), valueType, v, m.promLabelValues()...)
+		ch <- prometheus.MustNewConstMetric(m.desc, valueType, v, m.promLabelValues()...)
 	}
 }

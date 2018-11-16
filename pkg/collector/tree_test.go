@@ -134,6 +134,10 @@ func TestGetMetrics(t *testing.T) {
 			tr.insert(input.path, input.value)
 		}
 
+		for i := range test.expected {
+			test.expected[i].desc = test.expected[i].describe()
+		}
+
 		m := tr.getMetrics()
 		assert.Equal(t, test.expected, m, test.name)
 	}
