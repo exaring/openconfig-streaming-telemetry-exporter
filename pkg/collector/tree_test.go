@@ -184,7 +184,8 @@ func TestPathToIdentifiers(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		ids := pathToIdentifiers(test.input)
+		tr := newTree()
+		ids := tr.pathToIdentifiers(test.input)
 		assert.Equal(t, test.expected, ids, test.name)
 	}
 }
