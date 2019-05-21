@@ -22,6 +22,7 @@ const (
 // Target represents a streaming telemetry exporting network device
 type Target struct {
 	address            string
+	devName            string
 	con                *grpc.ClientConn
 	client             pb.OpenConfigTelemetryClient
 	paths              []*config.Path
@@ -35,8 +36,9 @@ type Target struct {
 func newTarget(tconf *config.Target, stringValueMapping map[string]map[string]int, reconnect bool) *Target {
 	t := &Target{
 		address:            fmt.Sprintf("%s:%d", tconf.Hostname, tconf.Port),
+		devName:            tconf.Hostname,
 		paths:              tconf.Paths,
-		metrics:            newTree(),
+		metrics:            newTree(tconf.Hostname),
 		stringValueMapping: stringValueMapping,
 		reconnect:          reconnect,
 	}
@@ -120,7 +122,7 @@ func (t *Target) process(stream pb.OpenConfigTelemetry_TelemetrySubscribeClient)
 		data, err := stream.Recv()
 		if err != nil {
 			log.Errorf("Failed to receive stream: %v", err)
-			t.metrics = newTree()
+			t.metrics = newTree(t.devName)
 			break
 		}
 

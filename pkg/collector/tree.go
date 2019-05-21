@@ -29,6 +29,7 @@ type tree struct {
 	lock    sync.RWMutex
 	root    *node
 	idCache *idCache
+	devName string
 }
 
 type node struct {
@@ -45,9 +46,10 @@ type identifier struct {
 	labels string
 }
 
-func newTree() *tree {
+func newTree(devName string) *tree {
 	return &tree{
 		idCache: newIDCache(),
+		devName: devName,
 	}
 }
 
@@ -88,7 +90,7 @@ func (t *tree) insert(path string, v interface{}) {
 	ids := t.pathToIdentifiers(path)
 
 	if t.root == nil {
-		t.root = newNode(identifier{})
+		t.root = newNode(identifier{labels: fmt.Sprintf("device=%s", t.devName)})
 	}
 
 	t.root.insert(ids, v)
@@ -148,7 +150,18 @@ func (n *node) setDescription(path []identifier, v string) {
 		return
 	}
 
-	n.description = v
+	if n.description != v {
+		n.description = v
+		n.clearDesc()
+	}
+
+}
+
+func (n *node) clearDesc() {
+	n.desc = nil
+	for i := range n.children {
+		n.children[i].clearDesc()
+	}
 }
 
 func (n *node) descLabels() []string {
