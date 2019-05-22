@@ -46,9 +46,14 @@ func TestGetMetrics(t *testing.T) {
 			},
 			expected: []metric{
 				{
-					name:   "interfaces",
-					value:  float64(100),
-					labels: []label{},
+					name:  "interfaces",
+					value: float64(100),
+					labels: []label{
+						{
+							key:   "device",
+							value: "test",
+						},
+					},
 				},
 			},
 		},
@@ -68,6 +73,10 @@ func TestGetMetrics(t *testing.T) {
 					name:  "interfaces/bgp/something",
 					value: float64(200),
 					labels: []label{
+						{
+							key:   "device",
+							value: "test",
+						},
 						{
 							key:   "foo",
 							value: "bar",
@@ -101,6 +110,10 @@ func TestGetMetrics(t *testing.T) {
 					value: float64(200),
 					labels: []label{
 						{
+							key:   "device",
+							value: "test",
+						},
+						{
 							key:   "foo",
 							value: "bar",
 						},
@@ -114,6 +127,10 @@ func TestGetMetrics(t *testing.T) {
 					name:  "interfaces/bgp/something",
 					value: float64(300),
 					labels: []label{
+						{
+							key:   "device",
+							value: "test",
+						},
 						{
 							key:   "foo",
 							value: "bar",
@@ -129,7 +146,7 @@ func TestGetMetrics(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		tr := newTree()
+		tr := newTree("test")
 		for _, input := range test.input {
 			tr.insert(input.path, input.value)
 		}
@@ -188,7 +205,7 @@ func TestPathToIdentifiers(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		tr := newTree()
+		tr := newTree("test")
 		ids := tr.pathToIdentifiers(test.input)
 		assert.Equal(t, test.expected, ids, test.name)
 	}
