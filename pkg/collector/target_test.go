@@ -17,7 +17,7 @@ func TestProcessOpenConfigData(t *testing.T) {
 		{
 			name: "All ok",
 			target: &Target{
-				metrics: newTree(),
+				metrics: newTree("test"),
 			},
 			input: &pb.OpenConfigData{
 				Kv: []*pb.KeyValue{
@@ -37,7 +37,9 @@ func TestProcessOpenConfigData(t *testing.T) {
 			},
 			expected: &tree{
 				root: &node{
-					id: identifier{},
+					id: identifier{
+						labels: "device=test",
+					},
 					children: []node{
 						{
 							id: identifier{
@@ -63,7 +65,7 @@ func TestProcessOpenConfigData(t *testing.T) {
 		{
 			name: "Ignore __",
 			target: &Target{
-				metrics: newTree(),
+				metrics: newTree("test"),
 			},
 			input: &pb.OpenConfigData{
 				Kv: []*pb.KeyValue{
@@ -89,7 +91,9 @@ func TestProcessOpenConfigData(t *testing.T) {
 			},
 			expected: &tree{
 				root: &node{
-					id: identifier{},
+					id: identifier{
+						labels: "device=test",
+					},
 					children: []node{
 						{
 							id: identifier{
@@ -115,7 +119,7 @@ func TestProcessOpenConfigData(t *testing.T) {
 		{
 			name: "prefix with nil value",
 			target: &Target{
-				metrics: newTree(),
+				metrics: newTree("test"),
 			},
 			input: &pb.OpenConfigData{
 				Kv: []*pb.KeyValue{
@@ -133,7 +137,9 @@ func TestProcessOpenConfigData(t *testing.T) {
 			},
 			expected: &tree{
 				root: &node{
-					id: identifier{},
+					id: identifier{
+						labels: "device=test",
+					},
 					children: []node{
 						{
 							id: identifier{
@@ -152,7 +158,7 @@ func TestProcessOpenConfigData(t *testing.T) {
 		{
 			name: "non-string prefix",
 			target: &Target{
-				metrics: newTree(),
+				metrics: newTree("test"),
 			},
 			input: &pb.OpenConfigData{
 				Kv: []*pb.KeyValue{
@@ -172,7 +178,9 @@ func TestProcessOpenConfigData(t *testing.T) {
 			},
 			expected: &tree{
 				root: &node{
-					id: identifier{},
+					id: identifier{
+						labels: "device=test",
+					},
 					children: []node{
 						{
 							id: identifier{

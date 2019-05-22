@@ -8,6 +8,7 @@ type metric struct {
 	name   string
 	labels []label
 	value  interface{}
+	desc   *prometheus.Desc
 }
 
 type label struct {
@@ -18,16 +19,6 @@ type label struct {
 func (m *metric) promName() string {
 	return metricNameReplacer.Replace(m.name)
 }
-
-/*func (m *metric) Key() string {
-	ret := m.name + "{"
-	for _, label := range m.labels {
-		ret += label + ","
-	}
-
-	ret += "}"
-	return ret
-}*/
 
 func (m *metric) describe() *prometheus.Desc {
 	return prometheus.NewDesc(m.promName(), m.name, m.promLabelKeys(), nil)
