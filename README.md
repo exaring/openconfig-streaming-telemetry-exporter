@@ -2,7 +2,7 @@
 
 openconfig-streaming-telemetry-exporter is a Prometheus exporter that collects metrics from network devices using streaming telemetry.
 
-Tested with JunOS 17.3.
+Tested with JunOS 17.3. and 18.3 on QFX10k.
 
 [![Build Status](https://travis-ci.org/exaring/openconfig-streaming-telemetry-exporter.svg?branch=master)](https://travis-ci.org/exaring/openconfig-streaming-telemetry-exporter)
 [![Coverage Status](https://coveralls.io/repos/exaring/openconfig-streaming-telemetry-exporter/badge.svg?branch=master&service=github)](https://coveralls.io/github/exaring/openconfig-streaming-telemetry-exporter?branch=master)
