@@ -1,12 +1,12 @@
 listen_address: 0.0.0.0:9513
 metrics_path: /metrics
 targets:
-- hostname: 10.32.0.1
+- hostname: 10.0.255.0
   port: 5432
   keepalive_s: 1
   timeout_s: 3
   paths:
-  - path: /components/component/
+  - path: /interfaces/
     suppress_unchanged: false
     max_silent_interval_ms: 20000
     sample_frequency_ms: 2000
