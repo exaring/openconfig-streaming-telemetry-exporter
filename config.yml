@@ -1,12 +1,16 @@
 listen_address: 0.0.0.0:9513
 metrics_path: /metrics
 targets:
-- hostname: 10.0.255.0
-  port: 5432
+- hostname: 203.0.113.1
+  port: 50051
   keepalive_s: 1
   timeout_s: 3
   paths:
   - path: /interfaces/
+    suppress_unchanged: false
+    max_silent_interval_ms: 20000
+    sample_frequency_ms: 2000
+  - path: /network-instances/network-instance/protocols/protocol/bgp/
     suppress_unchanged: false
     max_silent_interval_ms: 20000
     sample_frequency_ms: 2000
