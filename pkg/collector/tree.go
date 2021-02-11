@@ -188,7 +188,7 @@ func (n *node) getMetrics(path string, res *metricSet, labels []label, descripti
 	}
 
 	if n.id.labels != "" {
-		newLabels := labelStringToLabels(n.id.labels)
+		newLabels := labelIdentifierToLabels(n.id)
 		mergedLabels := make([]label, len(labels)+len(newLabels))
 		for i, label := range labels {
 			mergedLabels[i] = label
@@ -264,6 +264,27 @@ func labelStringToLabels(input string) []label {
 
 		res = append(res, label{
 			key:   labelKeyReplacer.Replace(kv[0]),
+			value: labelValueReplacer.Replace(kv[1]),
+		})
+	}
+
+	return res
+}
+
+func labelIdentifierToLabels(id identifier) []label {
+	res := make([]label, 0, 10)
+	for _, labelStr := range strings.Split(id.labels, ",") {
+		kv := strings.Split(labelStr, "=")
+		if len(kv) != 2 {
+			continue
+		}
+
+		if !descLabelRegexp.Match([]byte(kv[0])) {
+			continue
+		}
+
+		res = append(res, label{
+			key:   id.name + "_" + labelKeyReplacer.Replace(kv[0]),
 			value: labelValueReplacer.Replace(kv[1]),
 		})
 	}
