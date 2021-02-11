@@ -284,12 +284,20 @@ func labelIdentifierToLabels(id identifier) []label {
 		}
 
 		res = append(res, label{
-			key:   id.name + "_" + labelKeyReplacer.Replace(kv[0]),
+			key:   getKeyName(id.name, kv[0]),
 			value: labelValueReplacer.Replace(kv[1]),
 		})
 	}
 
 	return res
+}
+
+func getKeyName(idName string, key string) string {
+	if idName == "" {
+		return labelKeyReplacer.Replace(key)
+	}
+
+	return idName + "_" + labelKeyReplacer.Replace(key)
 }
 
 func dropSlashPrefixSuffix(p string) []rune {
