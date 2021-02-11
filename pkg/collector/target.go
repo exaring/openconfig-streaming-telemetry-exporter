@@ -156,6 +156,8 @@ func (t *Target) Serve(con *grpc.ClientConn) {
 func (t *Target) processOpenConfigData(data *pb.OpenConfigData) {
 	prefix := ""
 	for _, kv := range data.Kv {
+		fmt.Printf("kv: key: %s\n", kv.Key)
+
 		if kv.Key == "__prefix__" {
 			if kv.Value == nil {
 				log.Warningf("Received __prefix__ key with nil value from %s", t.address)
