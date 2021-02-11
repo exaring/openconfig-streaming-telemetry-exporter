@@ -122,7 +122,7 @@ func NewDesc(fqName, help string, variableLabels []string, constLabels Labels) *
 		labelNameSet[labelName] = struct{}{}
 	}
 	if len(labelNames) != len(labelNameSet) {
-		d.err = errors.New("duplicate label names")
+		d.err = errors.Newf("duplicate label names: %v", labelNames)
 		return d
 	}
 
