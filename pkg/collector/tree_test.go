@@ -240,3 +240,67 @@ func TestPathElementToIdentifier(t *testing.T) {
 		assert.Equal(t, test.expected, id, test.name)
 	}
 }
+
+func TestLabelIdentifierToLabels(t *testing.T) {
+	tests := []struct {
+		name     string
+		id       identifier
+		expected []label
+	}{
+		{
+			name: "With Name",
+			id: identifier{
+				name:   "foo",
+				labels: "a=123,b=456,c=1312",
+			},
+			expected: []label{
+				{
+					key:   "foo_a",
+					value: "123",
+				},
+				{
+					key:   "foo_b",
+					value: "456",
+				},
+				{
+					key:   "foo_c",
+					value: "1312",
+				},
+			},
+		},
+		{
+			name: "Empty Name",
+			id: identifier{
+				name:   "",
+				labels: "a=123,b=456,c=1312",
+			},
+			expected: []label{
+				{
+					key:   "a",
+					value: "123",
+				},
+				{
+					key:   "b",
+					value: "456",
+				},
+				{
+					key:   "c",
+					value: "1312",
+				},
+			},
+		},
+		{
+			name: "Empty input",
+			id: identifier{
+				name:   "",
+				labels: "",
+			},
+			expected: []label{},
+		},
+	}
+
+	for _, test := range tests {
+		res := labelIdentifierToLabels(test.id)
+		assert.Equal(t, test.expected, res, test.name)
+	}
+}
