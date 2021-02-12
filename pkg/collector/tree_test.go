@@ -24,6 +24,7 @@ func TestSlashCount(t *testing.T) {
 		assert.Equal(t, test.expected, x, test.name)
 	}
 }
+
 func TestGetMetrics(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -78,11 +79,11 @@ func TestGetMetrics(t *testing.T) {
 							value: "test",
 						},
 						{
-							key:   "foo",
+							key:   "interfaces_foo",
 							value: "bar",
 						},
 						{
-							key:   "some",
+							key:   "something_some",
 							value: "label",
 						},
 					},
@@ -114,11 +115,11 @@ func TestGetMetrics(t *testing.T) {
 							value: "test",
 						},
 						{
-							key:   "foo",
+							key:   "interfaces_foo",
 							value: "bar",
 						},
 						{
-							key:   "some",
+							key:   "something_some",
 							value: "label",
 						},
 					},
@@ -132,11 +133,11 @@ func TestGetMetrics(t *testing.T) {
 							value: "test",
 						},
 						{
-							key:   "foo",
+							key:   "interfaces_foo",
 							value: "bar",
 						},
 						{
-							key:   "some",
+							key:   "something_some",
 							value: "crap",
 						},
 					},
