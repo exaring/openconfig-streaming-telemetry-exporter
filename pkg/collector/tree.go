@@ -188,7 +188,7 @@ func (n *node) getMetrics(path string, res *metricSet, labels []label, descripti
 	}
 
 	if n.id.labels != "" {
-		newLabels := labelStringToLabels(n.id.labels)
+		newLabels := labelIdentifierToLabels(n.id)
 		mergedLabels := make([]label, len(labels)+len(newLabels))
 		for i, label := range labels {
 			mergedLabels[i] = label
@@ -269,6 +269,35 @@ func labelStringToLabels(input string) []label {
 	}
 
 	return res
+}
+
+func labelIdentifierToLabels(id identifier) []label {
+	res := make([]label, 0, 10)
+	for _, labelStr := range strings.Split(id.labels, ",") {
+		kv := strings.Split(labelStr, "=")
+		if len(kv) != 2 {
+			continue
+		}
+
+		if !descLabelRegexp.Match([]byte(kv[0])) {
+			continue
+		}
+
+		res = append(res, label{
+			key:   getKeyName(id.name, kv[0]),
+			value: labelValueReplacer.Replace(kv[1]),
+		})
+	}
+
+	return res
+}
+
+func getKeyName(idName string, key string) string {
+	if idName == "" {
+		return labelKeyReplacer.Replace(key)
+	}
+
+	return idName + "_" + labelKeyReplacer.Replace(key)
 }
 
 func dropSlashPrefixSuffix(p string) []rune {

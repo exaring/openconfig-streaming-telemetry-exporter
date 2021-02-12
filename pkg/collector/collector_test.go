@@ -115,7 +115,7 @@ func TestIntegration(t *testing.T) {
 					},
 				},
 			},
-			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{another_label=\"foobar\",name=\"xe-0/0/0\",some_label=\"somevalue\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{another_label=\"foobar\",name=\"xe-0/0/0\",some_label=\"somevalue\"} 1337\n",
+			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{another_label=\"foobar\",interface_name=\"xe-0/0/0\",some_label=\"somevalue\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{another_label=\"foobar\",interface_name=\"xe-0/0/0\",some_label=\"somevalue\"} 1337\n",
 		},
 		{
 			name: "Test #2",
@@ -166,7 +166,7 @@ func TestIntegration(t *testing.T) {
 					},
 				},
 			},
-			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{name=\"xe-0/0/0\"} 1337\n",
+			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{interface_name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{interface_name=\"xe-0/0/0\"} 1337\n",
 		},
 		{
 			name: "Test #3",
@@ -235,7 +235,7 @@ func TestIntegration(t *testing.T) {
 					},
 				},
 			},
-			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{foo=\"bar\",name=\"xe-0/0/1\"} 100\ninterfaces_interface_state_oper_state{bar=\"foo\",name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{foo=\"bar\",name=\"xe-0/0/1\"} 1337\ninterfaces_interface_state_pkts{bar=\"foo\",name=\"xe-0/0/0\"} 1337\n",
+			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{foo=\"bar\",interface_name=\"xe-0/0/1\"} 100\ninterfaces_interface_state_oper_state{bar=\"foo\",interface_name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{foo=\"bar\",interface_name=\"xe-0/0/1\"} 1337\ninterfaces_interface_state_pkts{bar=\"foo\",interface_name=\"xe-0/0/0\"} 1337\n",
 		},
 		{
 			name: "Test #4",
@@ -298,7 +298,7 @@ func TestIntegration(t *testing.T) {
 					},
 				},
 			},
-			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{bar=\"foo\",name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{bar=\"foo\",name=\"xe-0/0/0\"} 1337\n# HELP interfaces_interface_subinterfaces_subinterface_state_pkts interfaces/interface/subinterfaces/subinterface/state/pkts\n# TYPE interfaces_interface_subinterfaces_subinterface_state_pkts gauge\ninterfaces_interface_subinterfaces_subinterface_state_pkts{index=\"123\",name=\"xe-0/0/0\",some=\"label\"} 232323\n",
+			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{bar=\"foo\",interface_name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{bar=\"foo\",interface_name=\"xe-0/0/0\"} 1337\n# HELP interfaces_interface_subinterfaces_subinterface_state_pkts interfaces/interface/subinterfaces/subinterface/state/pkts\n# TYPE interfaces_interface_subinterfaces_subinterface_state_pkts gauge\ninterfaces_interface_subinterfaces_subinterface_state_pkts{interface_name=\"xe-0/0/0\",some=\"label\",subinterface_index=\"123\"} 232323\n",
 		},
 		{
 			name: "Test #5",
@@ -349,7 +349,7 @@ func TestIntegration(t *testing.T) {
 					},
 				},
 			},
-			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{bar=\"baz\",name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{name=\"xe-0/0/1\"} 1337\n",
+			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{bar=\"baz\",interface_name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{interface_name=\"xe-0/0/1\"} 1337\n",
 		},
 		{
 			name: "Test #6",
@@ -424,7 +424,7 @@ func TestIntegration(t *testing.T) {
 					},
 				},
 			},
-			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{bar=\"baz\",name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{name=\"xe-0/0/1\"} 1337\n# HELP interfaces_interface_state_some_bool interfaces/interface/state/some-bool\n# TYPE interfaces_interface_state_some_bool gauge\ninterfaces_interface_state_some_bool{bar=\"baz\",name=\"xe-0/0/0\"} 1\n# HELP interfaces_interface_state_some_double interfaces/interface/state/some-double\n# TYPE interfaces_interface_state_some_double gauge\ninterfaces_interface_state_some_double{bar=\"baz\",name=\"xe-0/0/0\"} 1338\n# HELP interfaces_interface_state_some_sint interfaces/interface/state/some-sint\n# TYPE interfaces_interface_state_some_sint gauge\ninterfaces_interface_state_some_sint{bar=\"baz\",name=\"xe-0/0/0\"} 4242\n# HELP interfaces_interface_state_some_uint interfaces/interface/state/some-uint\n# TYPE interfaces_interface_state_some_uint gauge\ninterfaces_interface_state_some_uint{bar=\"baz\",name=\"xe-0/0/0\"} 232323\n",
+			expected: "# HELP interfaces_interface_state_oper_state interfaces/interface/state/oper-state\n# TYPE interfaces_interface_state_oper_state gauge\ninterfaces_interface_state_oper_state{bar=\"baz\",interface_name=\"xe-0/0/0\"} 100\n# HELP interfaces_interface_state_pkts interfaces/interface/state/pkts\n# TYPE interfaces_interface_state_pkts gauge\ninterfaces_interface_state_pkts{interface_name=\"xe-0/0/1\"} 1337\n# HELP interfaces_interface_state_some_bool interfaces/interface/state/some-bool\n# TYPE interfaces_interface_state_some_bool gauge\ninterfaces_interface_state_some_bool{bar=\"baz\",interface_name=\"xe-0/0/0\"} 1\n# HELP interfaces_interface_state_some_double interfaces/interface/state/some-double\n# TYPE interfaces_interface_state_some_double gauge\ninterfaces_interface_state_some_double{bar=\"baz\",interface_name=\"xe-0/0/0\"} 1338\n# HELP interfaces_interface_state_some_sint interfaces/interface/state/some-sint\n# TYPE interfaces_interface_state_some_sint gauge\ninterfaces_interface_state_some_sint{bar=\"baz\",interface_name=\"xe-0/0/0\"} 4242\n# HELP interfaces_interface_state_some_uint interfaces/interface/state/some-uint\n# TYPE interfaces_interface_state_some_uint gauge\ninterfaces_interface_state_some_uint{bar=\"baz\",interface_name=\"xe-0/0/0\"} 232323\n",
 		},
 	}
 
