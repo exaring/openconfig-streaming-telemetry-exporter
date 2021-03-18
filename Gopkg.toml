@@ -34,7 +34,7 @@ required = ["github.com/q3k/goveralls"]
   version = "0.9.1"
 
 [[constraint]]
-  branch = "master"
+  branch = "main"
   name = "github.com/prometheus/common"
 
 [[constraint]]
