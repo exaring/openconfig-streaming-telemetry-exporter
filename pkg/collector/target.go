@@ -121,7 +121,7 @@ func (t *Target) process(stream pb.OpenConfigTelemetry_TelemetrySubscribeClient)
 
 		data, err := stream.Recv()
 		if err != nil {
-			log.Errorf("Failed to receive stream: %v", err)
+			log.Errorf("Failed to receive stream from [%v]: %v", t.devName, err)
 			t.metrics = newTree(t.devName)
 			break
 		}
