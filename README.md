@@ -5,12 +5,12 @@ openconfig-streaming-telemetry-exporter is a Prometheus exporter that collects m
 Tested with:
 - JunOS 17.3. and 18.3 on QFX10k
 - JunOS 18.2 on MX (with JunOS openconfig package)
-- JunOS 20.2 on MX 
-- JunOS 20.2 on ACX5448-M 
+- JunOS 20.2 on MX
+- JunOS 20.2 on ACX5448-M
 
 Known issues:
 
-- JunOS 20.2 on ACX5448-M: Interface metrics are not sent by the ACX
+- JunOS 20.2 on ACX5448-M: Interface metrics are sent in jumbo frames with the IP header's DF bit set.
 
 [![Build Status](https://travis-ci.org/exaring/openconfig-streaming-telemetry-exporter.svg?branch=master)](https://travis-ci.org/exaring/openconfig-streaming-telemetry-exporter)
 [![Coverage Status](https://coveralls.io/repos/exaring/openconfig-streaming-telemetry-exporter/badge.svg?branch=master&service=github)](https://coveralls.io/github/exaring/openconfig-streaming-telemetry-exporter?branch=master)
